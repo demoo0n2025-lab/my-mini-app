@@ -4,20 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="theme-color" content="#101426">
-  <title>kriptogig</title>
+  <title>Ам Ням — кликер</title>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     :root {
       color-scheme: dark;
-      --text: #ffffff;
+      --text: #fff;
       --muted: #b8c0e0;
       --border: #ffffff1c;
+      --green: #42e695;
+      --gold: #ffe77a;
     }
 
     body {
@@ -31,15 +31,9 @@
         #101426;
     }
 
-    button {
-      color: inherit;
-      font: inherit;
-    }
+    button { color: inherit; font: inherit; }
 
-    .app {
-      width: min(100%, 420px);
-      margin: 0 auto;
-    }
+    .app { width: min(100%, 520px); margin: 0 auto; }
 
     .header {
       display: flex;
@@ -48,102 +42,67 @@
       margin-bottom: 20px;
     }
 
-    h1 {
-      margin: 0;
-      font-size: 28px;
-      letter-spacing: 0.5px;
-    }
+    h1 { margin: 0; font-size: 26px; }
 
-    .settings-button {
-      width: 44px;
-      height: 44px;
+    .settings-button, .close-settings {
+      width: 42px;
+      height: 42px;
       border: 1px solid var(--border);
       border-radius: 14px;
       background: #ffffff12;
       cursor: pointer;
-      font-size: 20px;
     }
 
-    .page {
-      display: none;
-      animation: page-in 180ms ease-out;
-    }
-
-    .page.active {
-      display: block;
-    }
+    .page { display: none; animation: page-in 180ms ease-out; }
+    .page.active { display: block; }
 
     @keyframes page-in {
-      from {
-        opacity: 0;
-        transform: translateY(6px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    .score-card,
-    .panel,
-    .energy-card {
+    .score-card, .panel, .energy-card, .upgrade-card {
       border: 1px solid var(--border);
       border-radius: 20px;
       background: #ffffff0d;
     }
 
-    .score-card {
-      padding: 18px;
-      text-align: center;
-    }
-
-    .score-label,
-    .muted {
-      color: var(--muted);
-      font-size: 14px;
-    }
+    .score-card { padding: 18px; text-align: center; }
+    .score-label, .muted { color: var(--muted); font-size: 14px; }
 
     #score {
       display: inline-block;
       margin-top: 6px;
-      font-size: 42px;
+      font-size: clamp(32px, 9vw, 44px);
       font-weight: 700;
       font-variant-numeric: tabular-nums;
+      overflow-wrap: anywhere;
     }
 
     .coin-button {
       display: grid;
       width: 230px;
       height: 230px;
-      margin: 30px auto;
+      margin: 26px auto;
       place-items: center;
       border: 0;
       border-radius: 50%;
-      color: #553600;
-      font-size: 100px;
+      background: radial-gradient(circle at 35% 28%, #d9ff80, #6edb47 65%, #36a832);
+      box-shadow: 0 12px 0 #277d2c, 0 20px 45px #0005;
       cursor: pointer;
       user-select: none;
       touch-action: manipulation;
-      background: linear-gradient(145deg, #ffe77a, #ffab21);
-      box-shadow: 0 12px 0 #bd6d12, 0 20px 45px #0005;
-      transition: transform 0.08s, box-shadow 0.08s;
+      transition: transform .08s, box-shadow .08s;
     }
 
     .coin-button:active {
-      transform: translateY(8px) scale(0.97);
-      box-shadow: 0 4px 0 #bd6d12, 0 12px 28px #0005;
+      transform: translateY(8px) scale(.97);
+      box-shadow: 0 4px 0 #277d2c, 0 12px 28px #0005;
     }
 
-    .coin-button:disabled {
-      cursor: not-allowed;
-      filter: grayscale(0.6);
-      opacity: 0.65;
-    }
-
-    .energy-card {
-      padding: 16px;
-      text-align: left;
-    }
+    .coin-button:disabled { cursor: not-allowed; filter: grayscale(.6); opacity: .65; }
+    .omnom { width: 150px; height: 150px; overflow: visible; }
+    .energy-card { padding: 16px; }
 
     .energy-row {
       display: flex;
@@ -151,47 +110,74 @@
       margin-bottom: 10px;
     }
 
-    .energy-label {
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .bar {
-      height: 12px;
-      overflow: hidden;
-      border-radius: 99px;
-      background: #ffffff20;
-    }
+    .energy-label { color: var(--muted); font-size: 14px; }
+    .bar { height: 12px; overflow: hidden; border-radius: 99px; background: #ffffff20; }
 
     #energyBar {
       width: 100%;
       height: 100%;
       border-radius: inherit;
       background: linear-gradient(90deg, #42e695, #3bb2ff);
-      transition: width 0.2s;
+      transition: width .2s;
     }
 
     .hint {
       min-height: 20px;
-      margin: 16px 0 0;
+      margin: 15px 0 0;
       color: var(--muted);
       font-size: 14px;
       text-align: center;
     }
 
-    .page-title {
-      margin: 8px 0 6px;
-      font-size: 23px;
+    .page-title { margin: 8px 0 6px; font-size: 23px; }
+    .page-description { margin: 0 0 18px; color: var(--muted); line-height: 1.45; }
+    .panel { padding: 16px; }
+
+    .section-heading {
+      margin: 22px 0 10px;
+      color: var(--gold);
+      font-size: 16px;
     }
 
-    .page-description {
-      margin: 0 0 18px;
-      color: var(--muted);
-      line-height: 1.45;
+    .upgrade-list { display: grid; gap: 10px; }
+
+    .upgrade-card { padding: 14px; }
+    .upgrade-top { display: flex; justify-content: space-between; gap: 12px; }
+    .upgrade-name { font-weight: 700; line-height: 1.35; }
+    .upgrade-level { flex: 0 0 auto; color: var(--gold); font-size: 13px; }
+    .upgrade-desc { margin: 8px 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
+
+    .upgrade-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 10px;
     }
 
-    .panel {
-      padding: 16px;
+    .requirement { color: var(--muted); font-size: 12px; }
+    .buy-button, .action-button, .claim-button {
+      padding: 10px 13px;
+      border: 0;
+      border-radius: 12px;
+      color: #192014;
+      background: linear-gradient(135deg, #d9ff80, #42e695);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .buy-button:disabled, .action-button:disabled, .claim-button:disabled {
+      cursor: default;
+      filter: grayscale(.65);
+      opacity: .55;
+    }
+
+    .action-button { width: 100%; margin-top: 10px; }
+    .claim-button {
+      width: 100%;
+      margin-top: 14px;
+      color: #27200a;
+      background: linear-gradient(135deg, #ffe77a, #ffb52e);
     }
 
     .bonus-timer {
@@ -199,7 +185,7 @@
       padding: 12px;
       border: 1px solid var(--border);
       border-radius: 14px;
-      color: #ffe77a;
+      color: var(--gold);
       background: #ffffff08;
       font-size: 14px;
       text-align: center;
@@ -221,52 +207,15 @@
       padding: 10px;
       border: 1px solid var(--border);
       border-radius: 18px;
-      color: #fff;
       background: #ffffff0a;
       text-align: center;
     }
 
-    .day-card.today {
-      border-color: #ffe77a;
-      background: #ffe77a18;
-    }
-
-    .day-card.claimed {
-      border-color: #42e69570;
-      background: #42e69514;
-    }
-
-    .gift-icon {
-      font-size: 30px;
-    }
-
-    .day-name {
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    .day-reward {
-      font-size: 14px;
-      font-weight: 700;
-    }
-
-    .claim-button {
-      width: 100%;
-      margin-top: 14px;
-      padding: 14px;
-      border: 0;
-      border-radius: 14px;
-      color: #27200a;
-      background: linear-gradient(135deg, #ffe77a, #ffb52e);
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .claim-button:disabled {
-      cursor: default;
-      filter: grayscale(0.5);
-      opacity: 0.7;
-    }
+    .day-card.today { border-color: var(--gold); background: #ffe77a18; }
+    .day-card.claimed { border-color: #42e69570; background: #42e69514; }
+    .gift-icon { font-size: 30px; }
+    .day-name { color: var(--muted); font-size: 12px; }
+    .day-reward { font-size: 14px; font-weight: 700; }
 
     .profile-stat {
       display: flex;
@@ -276,20 +225,8 @@
       border-bottom: 1px solid var(--border);
     }
 
-    .profile-stat:last-child {
-      border-bottom: 0;
-    }
-
-    .profile-stat strong {
-      text-align: right;
-    }
-
-    .empty-state {
-      padding: 28px 16px;
-      color: var(--muted);
-      text-align: center;
-      line-height: 1.5;
-    }
+    .profile-stat:last-child { border-bottom: 0; }
+    .profile-stat strong { text-align: right; }
 
     .bottom-nav {
       position: fixed;
@@ -297,10 +234,10 @@
       bottom: max(12px, env(safe-area-inset-bottom));
       left: 50%;
       display: grid;
-      width: min(calc(100% - 24px), 420px);
-      grid-template-columns: repeat(4, 1fr);
-      gap: 5px;
-      padding: 8px;
+      width: min(calc(100% - 20px), 520px);
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      padding: 7px;
       transform: translateX(-50%);
       border: 1px solid #ffffff25;
       border-radius: 18px;
@@ -320,17 +257,11 @@
       color: #d7dcf2;
       background: transparent;
       cursor: pointer;
-      font-size: 19px;
+      font-size: 18px;
     }
 
-    .bottom-nav button span {
-      font-size: 10px;
-    }
-
-    .bottom-nav button.active {
-      color: #fff;
-      background: #ffffff1c;
-    }
+    .bottom-nav button span { font-size: 9px; }
+    .bottom-nav button.active { color: #fff; background: #ffffff1c; }
 
     .settings-backdrop {
       position: fixed;
@@ -343,9 +274,7 @@
       background: #0009;
     }
 
-    .settings-backdrop.open {
-      display: flex;
-    }
+    .settings-backdrop.open { display: flex; }
 
     .settings-menu {
       width: min(100%, 420px);
@@ -354,56 +283,16 @@
       border-radius: 22px;
       background: #1a2038;
       box-shadow: 0 16px 48px #0008;
-      animation: page-in 180ms ease-out;
     }
 
-    .settings-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
-
-    .settings-head h2 {
-      margin: 0;
-      font-size: 20px;
-    }
-
-    .close-settings {
-      width: 36px;
-      height: 36px;
-      border: 0;
-      border-radius: 12px;
-      background: #ffffff12;
-      cursor: pointer;
-      font-size: 18px;
-    }
-
-    .setting-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      padding: 15px 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .setting-row:last-child {
-      border-bottom: 0;
-    }
-
-    .setting-label {
-      font-weight: 700;
-    }
-
-    .setting-note {
-      margin-top: 4px;
-      color: var(--muted);
-      font-size: 12px;
-    }
+    .settings-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .settings-head h2 { margin: 0; font-size: 20px; }
+    .setting-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 15px 0; border-bottom: 1px solid var(--border); }
+    .setting-row:last-child { border-bottom: 0; }
+    .setting-label { font-weight: 700; }
+    .setting-note { margin-top: 4px; color: var(--muted); font-size: 12px; }
 
     .switch {
-      position: relative;
       width: 50px;
       height: 30px;
       flex: 0 0 auto;
@@ -412,7 +301,7 @@
       border-radius: 99px;
       background: #626982;
       cursor: pointer;
-      transition: background 150ms;
+      position: relative;
     }
 
     .switch::after {
@@ -427,655 +316,906 @@
       transition: transform 150ms;
     }
 
-    .switch:checked {
-      background: #42c88b;
-    }
+    .switch:checked { background: #42c88b; }
+    .switch:checked::after { transform: translateX(20px); }
 
-    .switch:checked::after {
-      transform: translateX(20px);
-    }
-
-    .flying-coin {
+    .flying-omnom {
       position: fixed;
       z-index: 50;
+      width: 42px;
+      height: 42px;
       pointer-events: none;
-      font-size: 30px;
       will-change: transform, opacity;
-      transition:
-        transform 650ms cubic-bezier(.2, .8, .25, 1),
-        opacity 650ms ease;
+      transition: transform 650ms cubic-bezier(.2,.8,.25,1), opacity 650ms ease;
     }
 
     .tap-number {
       position: fixed;
       z-index: 49;
       pointer-events: none;
-      color: #ffe77a;
-      font-size: 23px;
+      color: var(--gold);
+      font-size: 20px;
       font-weight: 700;
       text-shadow: 0 2px 8px #0008;
       animation: float-up 700ms ease-out forwards;
     }
 
     @keyframes float-up {
-      from {
-        opacity: 1;
-        transform: translate(-50%, 0) scale(.8);
-      }
-      to {
-        opacity: 0;
-        transform: translate(-50%, -65px) scale(1.2);
-      }
+      from { opacity: 1; transform: translate(-50%, 0) scale(.8); }
+      to { opacity: 0; transform: translate(-50%, -65px) scale(1.2); }
     }
 
-    @media (max-width: 350px) {
-      body {
-        padding-right: 12px;
-        padding-left: 12px;
-      }
-
-      .coin-button {
-        width: 210px;
-        height: 210px;
-      }
-
-      .day-card {
-        padding: 7px;
-      }
+    @media (max-width: 360px) {
+      body { padding-right: 12px; padding-left: 12px; }
+      .coin-button { width: 210px; height: 210px; }
+      .omnom { width: 138px; height: 138px; }
+      .bottom-nav button span { font-size: 8px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      *,
-      *::before,
-      *::after {
-        scroll-behavior: auto !important;
-      }
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
     }
   </style>
 </head>
 
 <body>
-  <main class="app">
-    <header class="header">
-      <h1>kriptogig</h1>
-      <button class="settings-button" id="openSettings" aria-label="Настройки">
-        ⚙️
-      </button>
-    </header>
+<main class="app">
+  <header class="header">
+    <h1>Ам Ням — кликер</h1>
+    <button class="settings-button" id="openSettings" aria-label="Настройки">⚙️</button>
+  </header>
 
-    <!-- Игра -->
-    <section class="page active" id="page-game">
-      <div class="score-card">
-        <div class="score-label">ТВОЙ БАЛАНС</div>
-        <div id="score">0</div>
+  <section class="page active" id="page-game">
+    <div class="score-card">
+      <div class="score-label">ТВОЙ БАЛАНС · GM</div>
+      <div id="score">0</div>
+      <div class="muted" id="clickValue">За клик: 0,001 GM</div>
+    </div>
+
+    <button class="coin-button" id="tapButton" aria-label="Нажать на Ам Няма">
+      <svg class="omnom" viewBox="0 0 160 160" role="img" aria-label="Ам Ням">
+        <path d="M26 65 Q16 37 35 24 Q48 15 62 35 Q79 22 96 34 Q116 17 130 32 Q144 48 132 69 Q146 105 120 130 Q102 149 72 140 Q36 144 23 115 Q12 91 26 65Z" fill="#58c943" stroke="#267d2c" stroke-width="6"/>
+        <path d="M36 76 Q47 60 60 76" fill="none" stroke="#205d29" stroke-width="6" stroke-linecap="round"/>
+        <path d="M89 76 Q102 60 115 76" fill="none" stroke="#205d29" stroke-width="6" stroke-linecap="round"/>
+        <ellipse cx="49" cy="64" rx="8" ry="11" fill="#fff"/>
+        <ellipse cx="104" cy="64" rx="8" ry="11" fill="#fff"/>
+        <circle cx="52" cy="67" r="4" fill="#172318"/>
+        <circle cx="101" cy="67" r="4" fill="#172318"/>
+        <path d="M59 100 Q80 119 103 99" fill="none" stroke="#174d22" stroke-width="6" stroke-linecap="round"/>
+        <path d="M65 103 Q81 111 98 103" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+        <path d="M38 88 Q28 94 40 99" fill="none" stroke="#83e85a" stroke-width="5" stroke-linecap="round"/>
+        <path d="M122 87 Q133 92 122 99" fill="none" stroke="#83e85a" stroke-width="5" stroke-linecap="round"/>
+      </svg>
+    </button>
+
+    <section class="energy-card">
+      <div class="energy-row">
+        <span class="energy-label">Энергия кликов</span>
+        <span id="energyText">100 / 100</span>
       </div>
-
-      <button class="coin-button" id="tapButton" aria-label="Нажать на монету">
-        🪙
-      </button>
-
-      <section class="energy-card">
-        <div class="energy-row">
-          <span class="energy-label">Энергия</span>
-          <span id="energyText">100 / 100</span>
-        </div>
-        <div class="bar">
-          <div id="energyBar"></div>
-        </div>
-      </section>
-
-      <p class="hint" id="gameHint">Нажимай на монету, чтобы заработать</p>
+      <div class="bar"><div id="energyBar"></div></div>
     </section>
+    <p class="hint" id="gameHint">Нажимай на Ам Няма, чтобы заработать!</p>
+  </section>
 
-    <!-- Ежедневные бонусы -->
-    <section class="page" id="page-bonus">
-      <h2 class="page-title">Ежедневный бонус 🎁</h2>
-      <p class="page-description">
-        Заходи каждый день и забирай подарок. Если пропустить день, серия начнётся заново.
-      </p>
+  <section class="page" id="page-upgrades">
+    <h2 class="page-title">Улучшения и механики</h2>
+    <p class="page-description">Покупай улучшения за GM, а постоянные бонусы — за KF.</p>
+    <div class="panel">
+      <div class="profile-stat"><span class="muted">Баланс</span><strong id="upgradeBalance">0 GM</strong></div>
+      <div class="profile-stat"><span class="muted">Кристаллы Фокуса</span><strong id="upgradeKF">0 KF</strong></div>
+      <div id="upgradeLists"></div>
+    </div>
+  </section>
 
-      <div class="panel">
-        <div class="bonus-timer" id="bonusTimer"></div>
-        <div class="daily-grid" id="dailyGrid"></div>
-        <button class="claim-button" id="claimBonus">Забрать подарок</button>
+  <section class="page" id="page-bonus">
+    <h2 class="page-title">Ежедневный бонус 🎁</h2>
+    <p class="page-description">Заходи каждый день и забирай подарок.</p>
+    <div class="panel">
+      <div class="bonus-timer" id="bonusTimer"></div>
+      <div class="daily-grid" id="dailyGrid"></div>
+      <button class="claim-button" id="claimBonus">Забрать подарок</button>
+    </div>
+  </section>
+
+  <section class="page" id="page-tasks">
+    <h2 class="page-title">Задания и достижения</h2>
+
+    <div class="panel">
+      <h3 style="margin-top:0">Ежедневный вызов: «Марафон кликов»</h3>
+      <p class="muted" id="challengeText">Нажми кнопку, чтобы начать испытание.</p>
+      <p class="muted" id="challengeTimer"></p>
+      <button class="action-button" id="startChallenge">Начать марафон</button>
+    </div>
+
+    <div class="panel" style="margin-top:12px">
+      <h3 style="margin-top:0">Достижение: «Король критов»</h3>
+      <p class="muted" id="achievementText">Совершай критические клики, чтобы получить награду.</p>
+      <div class="bar"><div id="achievementBar"></div></div>
+    </div>
+  </section>
+
+  <section class="page" id="page-profile">
+    <h2 class="page-title">Профиль</h2>
+    <p class="page-description">Твоя статистика в игре.</p>
+    <div class="panel">
+      <div class="profile-stat"><span class="muted">Баланс</span><strong id="profileScore">0 GM</strong></div>
+      <div class="profile-stat"><span class="muted">Всего нажатий</span><strong id="profileTaps">0</strong></div>
+      <div class="profile-stat"><span class="muted">Критические клики</span><strong id="profileCrits">0</strong></div>
+      <div class="profile-stat"><span class="muted">Заработано за забег</span><strong id="profileEarned">0 GM</strong></div>
+      <div class="profile-stat"><span class="muted">Серия входов</span><strong id="profileStreak">0 дней</strong></div>
+      <div class="profile-stat"><span class="muted">Активные способности</span><strong id="profileAbilities">Нет</strong></div>
+    </div>
+  </section>
+</main>
+
+<nav class="bottom-nav" aria-label="Главное меню">
+  <button class="active" data-page="game">🎮<span>Игра</span></button>
+  <button data-page="upgrades">⬆️<span>Улучшения</span></button>
+  <button data-page="bonus">🎁<span>Бонус</span></button>
+  <button data-page="tasks">📋<span>Задания</span></button>
+  <button data-page="profile">👤<span>Профиль</span></button>
+</nav>
+
+<div class="settings-backdrop" id="settingsBackdrop">
+  <section class="settings-menu" role="dialog" aria-modal="true">
+    <div class="settings-head">
+      <h2>Настройки звука</h2>
+      <button class="close-settings" id="closeSettings" aria-label="Закрыть">✕</button>
+    </div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">Фоновая музыка</div>
+        <div class="setting-note">Мелодия во время игры</div>
       </div>
-    </section>
-
-    <!-- Вкладка заданий без заданий -->
-    <section class="page" id="page-tasks">
-      <h2 class="page-title">Задания</h2>
-      <div class="panel empty-state">
-        Сейчас заданий нет.<br>
-        Загляни сюда позже!
+      <input class="switch" type="checkbox" id="musicToggle" aria-label="Фоновая музыка">
+    </div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">Звуки нажатия</div>
+        <div class="setting-note">Звук при нажатии на Ам Няма</div>
       </div>
-    </section>
+      <input class="switch" type="checkbox" id="tapSoundToggle" aria-label="Звуки нажатия">
+    </div>
+  </section>
+</div>
 
-    <!-- Профиль -->
-    <section class="page" id="page-profile">
-      <h2 class="page-title">Профиль</h2>
-      <p class="page-description">Твоя статистика в kriptogig.</p>
+<script>
+(() => {
+  "use strict";
 
-      <div class="panel">
-        <div class="profile-stat">
-          <span class="muted">Баланс</span>
-          <strong id="profileScore">0 монет</strong>
-        </div>
-        <div class="profile-stat">
-          <span class="muted">Всего нажатий</span>
-          <strong id="profileTaps">0</strong>
-        </div>
-        <div class="profile-stat">
-          <span class="muted">Серия входов</span>
-          <strong id="profileStreak">0 дней</strong>
-        </div>
-      </div>
-    </section>
-  </main>
+  const tg = window.Telegram?.WebApp;
+  tg?.ready();
+  tg?.expand();
 
-  <nav class="bottom-nav" aria-label="Главное меню">
-    <button class="active" data-page="game">🎮<span>Игра</span></button>
-    <button data-page="bonus">🎁<span>Бонус</span></button>
-    <button data-page="tasks">📋<span>Задания</span></button>
-    <button data-page="profile">👤<span>Профиль</span></button>
-  </nav>
+  // Стоимости, награды и числовые пороги из исходной таблицы уменьшены в 1000 раз.
+  const SCALE = 1000;
+  const MAX_ENERGY = 100;
+  const ENERGY_REGEN_PER_SECOND = 1;
+  const PRESTIGE_THRESHOLD = 1000000 / SCALE; // 1000 GM за забег
+  const CHALLENGE_CLICKS = 1000 / SCALE;      // 1 клик за 60 секунд
+  const ACHIEVEMENT_CRITS = 10000 / SCALE;   // 10 критических кликов
 
-  <!-- Настройки музыки и звуков -->
-  <div class="settings-backdrop" id="settingsBackdrop">
-    <section class="settings-menu" role="dialog" aria-modal="true" aria-label="Настройки звука">
-      <div class="settings-head">
-        <h2>Настройки звука</h2>
-        <button class="close-settings" id="closeSettings" aria-label="Закрыть">✕</button>
-      </div>
+  const GAME_KEY = "omnomClickerGameV2";
+  const DAILY_KEY = "omnomClickerDailyV2";
+  const MUSIC_KEY = "omnomClickerMusic";
+  const SOUND_KEY = "omnomClickerSound";
 
-      <div class="setting-row">
-        <div>
-          <div class="setting-label">Фоновая музыка</div>
-          <div class="setting-note">Мелодия во время игры</div>
-        </div>
-        <input class="switch" type="checkbox" id="musicToggle" aria-label="Фоновая музыка">
-      </div>
+  const $ = (id) => document.getElementById(id);
+  const fmt = (n, digits = 3) => Number(n || 0).toLocaleString("ru-RU", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: digits
+  });
 
-      <div class="setting-row">
-        <div>
-          <div class="setting-label">Звуки нажатия</div>
-          <div class="setting-note">Звук при нажатии на монету</div>
-        </div>
-        <input class="switch" type="checkbox" id="tapSoundToggle" aria-label="Звуки нажатия">
-      </div>
-    </section>
-  </div>
+  const todayKey = (date = new Date()) =>
+    `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
-  <script>
-    const tg = window.Telegram?.WebApp;
-    tg?.ready();
-    tg?.expand();
+  function yesterdayKey() {
+    const d = new Date();
+    d.setDate(d.getDate() - 1);
+    return todayKey(d);
+  }
 
-    const MAX_ENERGY = 100;
-    const ENERGY_REGEN_PER_SECOND = 1;
+  function freshGame() {
+    return {
+      score: 0,
+      totalEarned: 0,
+      energy: MAX_ENERGY,
+      lastTime: Date.now(),
+      taps: 0,
+      crits: 0,
+      lifetimeCrits: 0,
+      accuracy: 0,
+      energyClick: 0,
+      magnet: 0,
+      critChanceLevel: 0,
+      critPowerLevel: 0,
+      researchDepth: false,
+      researchSuper: false,
+      doubleUnlocked: false,
+      focusUnlocked: false,
+      doubleUntil: 0,
+      doubleCooldownUntil: 0,
+      focusUntil: 0,
+      focusCooldownUntil: 0,
+      kf: 0,
+      metaClick: 0,
+      metaDuration: 0,
+      metaMemory: 0,
+      prestigeCount: 0,
+      achievementClaimed: false,
+      achievementBonusChance: 0
+    };
+  }
 
-    const GAME_KEY = "kriptogigGameV1";
-    const DAILY_KEY = "kriptogigDailyV1";
-    const MUSIC_SETTING_KEY = "kriptogigMusicOn";
-    const TAP_SETTING_KEY = "kriptogigTapSoundOn";
+  function loadGame() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(GAME_KEY));
+      if (!saved || typeof saved !== "object") return freshGame();
 
-    const DAILY_REWARDS = [10, 20, 30, 40, 50, 75, 100];
+      const g = { ...freshGame(), ...saved };
+      const elapsed = Math.max(0, (Date.now() - Number(g.lastTime || Date.now())) / 1000);
+      g.energy = Math.min(MAX_ENERGY, Math.max(0, Number(g.energy) || 0) +
+        Math.floor(elapsed * ENERGY_REGEN_PER_SECOND));
 
-    const scoreElement = document.getElementById("score");
-    const energyText = document.getElementById("energyText");
-    const energyBar = document.getElementById("energyBar");
-    const tapButton = document.getElementById("tapButton");
-    const gameHint = document.getElementById("gameHint");
-    const dailyGrid = document.getElementById("dailyGrid");
-    const claimBonusButton = document.getElementById("claimBonus");
-    const settingsBackdrop = document.getElementById("settingsBackdrop");
-    const musicToggle = document.getElementById("musicToggle");
-    const tapSoundToggle = document.getElementById("tapSoundToggle");
+      [
+        "score", "totalEarned", "taps", "crits", "lifetimeCrits",
+        "accuracy", "energyClick", "magnet", "critChanceLevel",
+        "critPowerLevel", "kf", "metaClick", "metaDuration",
+        "metaMemory", "prestigeCount", "achievementBonusChance"
+      ].forEach(key => g[key] = Math.max(0, Number(g[key]) || 0));
 
-    function loadGame() {
-      try {
-        const saved = JSON.parse(localStorage.getItem(GAME_KEY));
+      g.lastTime = Date.now();
+      return g;
+    } catch {
+      return freshGame();
+    }
+  }
 
-        if (saved) {
-          const elapsedSeconds = Math.max(
-            0,
-            (Date.now() - Number(saved.lastTime || Date.now())) / 1000
-          );
+  function loadDaily() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(DAILY_KEY));
+      return {
+        lastClaimDate: saved?.lastClaimDate || "",
+        streak: Math.max(0, Number(saved?.streak) || 0),
+        challengeDate: saved?.challengeDate || "",
+        challengeDone: Boolean(saved?.challengeDone),
+        challengeClaimed: Boolean(saved?.challengeClaimed)
+      };
+    } catch {
+      return { lastClaimDate: "", streak: 0, challengeDate: "", challengeDone: false, challengeClaimed: false };
+    }
+  }
 
-          const energy = Math.min(
-            MAX_ENERGY,
-            Math.max(0, Number(saved.energy) || 0) +
-              Math.floor(elapsedSeconds * ENERGY_REGEN_PER_SECOND)
-          );
+  let game = loadGame();
+  let daily = loadDaily();
+  let challenge = { active: false, endsAt: 0, startingTaps: 0, timer: null };
 
-          return {
-            score: Math.max(0, Number(saved.score) || 0),
-            energy,
-            taps: Math.max(0, Number(saved.taps) || 0)
-          };
-        }
-      } catch (error) {
-        console.log("Не удалось загрузить сохранение игры.");
+  function saveGame() {
+    game.lastTime = Date.now();
+    localStorage.setItem(GAME_KEY, JSON.stringify(game));
+  }
+
+  function saveDaily() {
+    localStorage.setItem(DAILY_KEY, JSON.stringify(daily));
+  }
+
+  function getNextStreak() {
+    if (daily.lastClaimDate === todayKey()) return Math.max(1, daily.streak);
+    if (daily.lastClaimDate === yesterdayKey()) return Math.min(7, daily.streak + 1);
+    return 1;
+  }
+
+  const dailyRewards = [10, 20, 30, 40, 50, 75, 100].map(x => x / SCALE);
+
+  function baseClickValue() {
+    return 1 / SCALE + game.accuracy / SCALE + game.metaClick * (5 / SCALE);
+  }
+
+  function clickMultiplier() {
+    const energyMultiplier = game.energyClick > 0
+      ? 1.02 + (game.energyClick - 1) * 0.01
+      : 1;
+    const magnetMultiplier = game.magnet > 0
+      ? 1 + 0.05 + (game.magnet - 1) * 0.02
+      : 1;
+    const researchMultiplier = game.researchDepth ? 1.25 : 1;
+    const doubleMultiplier = Date.now() < game.doubleUntil ? 2 : 1;
+    return energyMultiplier * magnetMultiplier * researchMultiplier * doubleMultiplier;
+  }
+
+  function getCritChance() {
+    const levelBonus = game.critChanceLevel > 0
+      ? 0.01 + (game.critChanceLevel - 1) * 0.005
+      : 0;
+    const focusBonus = Date.now() < game.focusUntil ? 0.10 : 0;
+    return Math.min(0.95, 0.01 + levelBonus + game.achievementBonusChance + focusBonus);
+  }
+
+  function getCritMultiplier() {
+    let mult = game.critPowerLevel > 0
+      ? 2 + (game.critPowerLevel - 1) * 0.2
+      : 1.5;
+    if (game.researchSuper) mult += 0.5;
+    if (Date.now() < game.focusUntil) mult *= 1.5;
+    return mult;
+  }
+
+  function getTapValue(isCrit = false) {
+    const result = baseClickValue() * clickMultiplier();
+    return isCrit ? result * getCritMultiplier() : result;
+  }
+
+  function omNomSvg() {
+    return `<svg viewBox="0 0 160 160" aria-hidden="true">
+      <path d="M26 65 Q16 37 35 24 Q48 15 62 35 Q79 22 96 34 Q116 17 130 32 Q144 48 132 69 Q146 105 120 130 Q102 149 72 140 Q36 144 23 115 Q12 91 26 65Z" fill="#58c943" stroke="#267d2c" stroke-width="6"/>
+      <path d="M36 76 Q47 60 60 76 M89 76 Q102 60 115 76" fill="none" stroke="#205d29" stroke-width="6" stroke-linecap="round"/>
+      <ellipse cx="49" cy="64" rx="8" ry="11" fill="#fff"/><ellipse cx="104" cy="64" rx="8" ry="11" fill="#fff"/>
+      <circle cx="52" cy="67" r="4" fill="#172318"/><circle cx="101" cy="67" r="4" fill="#172318"/>
+      <path d="M59 100 Q80 119 103 99 M65 103 Q81 111 98 103" fill="none" stroke="#174d22" stroke-width="6" stroke-linecap="round"/>
+    </svg>`;
+  }
+
+  function animateOmNom(amount) {
+    const button = $("tapButton");
+    const b = button.getBoundingClientRect();
+    const s = $("score").getBoundingClientRect();
+    const angle = Math.random() * Math.PI * 2;
+    const radius = Math.sqrt(Math.random()) * b.width * 0.32;
+    const x = b.left + b.width / 2 + Math.cos(angle) * radius;
+    const y = b.top + b.height / 2 + Math.sin(angle) * radius;
+    const endX = s.left + s.width / 2;
+    const endY = s.top + s.height / 2;
+
+    const flying = document.createElement("span");
+    flying.className = "flying-omnom";
+    flying.innerHTML = omNomSvg();
+    flying.style.left = `${x - 21}px`;
+    flying.style.top = `${y - 21}px`;
+    document.body.appendChild(flying);
+
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      flying.style.transform = `translate(${endX - x}px, ${endY - y}px) scale(.25) rotate(360deg)`;
+      flying.style.opacity = "0";
+    }));
+    setTimeout(() => flying.remove(), 750);
+
+    const number = document.createElement("span");
+    number.className = "tap-number";
+    number.textContent = `+${fmt(amount)}`;
+    number.style.left = `${x}px`;
+    number.style.top = `${y}px`;
+    document.body.appendChild(number);
+    setTimeout(() => number.remove(), 750);
+  }
+
+  let audioContext = null;
+  let musicTimer = null;
+  let musicIndex = 0;
+  let musicEnabled = localStorage.getItem(MUSIC_KEY) === "true";
+  let soundEnabled = localStorage.getItem(SOUND_KEY) !== "false";
+
+  function getAudio() {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return null;
+    audioContext ||= new Ctx();
+    if (audioContext.state === "suspended") audioContext.resume();
+    return audioContext;
+  }
+
+  function tone(freq, duration = .12, volume = .035, type = "sine") {
+    const ctx = getAudio();
+    if (!ctx) return;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    gain.gain.setValueAtTime(volume, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + duration);
+  }
+
+  function startMusic() {
+    if (!musicEnabled || musicTimer) return;
+    const notes = [261.63, 329.63, 392, 329.63, 293.66, 349.23, 440, 349.23];
+    const play = () => {
+      if (!musicEnabled) return;
+      tone(notes[musicIndex++ % notes.length], .42, .018);
+    };
+    play();
+    musicTimer = setInterval(play, 520);
+  }
+
+  function stopMusic() {
+    clearInterval(musicTimer);
+    musicTimer = null;
+  }
+
+  function playReward() {
+    tone(660, .12, .05);
+    setTimeout(() => tone(880, .18, .05), 110);
+  }
+
+  function showMessage(message) {
+    if (tg?.showAlert) tg.showAlert(message);
+    else alert(message);
+  }
+
+  function renderGame() {
+    $("score").textContent = fmt(game.score);
+    $("clickValue").textContent =
+      `За клик: примерно ${fmt(getTapValue(false))} GM · шанс крита ${fmt(getCritChance() * 100, 2)}%`;
+    $("energyText").textContent = `${Math.floor(game.energy)} / ${MAX_ENERGY}`;
+    $("energyBar").style.width = `${Math.max(0, game.energy / MAX_ENERGY * 100)}%`;
+    $("tapButton").disabled = game.energy < 1;
+    $("gameHint").textContent = game.energy < 1
+      ? "Энергия закончилась — она постепенно восстановится."
+      : "Нажимай на Ам Няма, чтобы заработать!";
+
+    $("profileScore").textContent = `${fmt(game.score)} GM`;
+    $("profileTaps").textContent = game.taps.toLocaleString("ru-RU");
+    $("profileCrits").textContent = game.lifetimeCrits.toLocaleString("ru-RU");
+    $("profileEarned").textContent = `${fmt(game.totalEarned)} GM`;
+    $("profileStreak").textContent = `${daily.streak} ${daily.streak === 1 ? "день" : "дней"}`;
+
+    const abilities = [];
+    if (Date.now() < game.doubleUntil) abilities.push(`Двойной клик: ${Math.ceil((game.doubleUntil - Date.now()) / 1000)}с`);
+    if (Date.now() < game.focusUntil) abilities.push(`Фокусировка: ${Math.ceil((game.focusUntil - Date.now()) / 1000)}с`);
+    $("profileAbilities").textContent = abilities.join(" · ") || "Нет";
+  }
+
+  function upgradeData() {
+    return [
+      {
+        section: "I. Основной клик",
+        items: [
+          { id: "accuracy", name: "Точность Пальца", desc: "Увеличивает базовый доход за каждый клик. +0,001 GM за уровень после уменьшения масштаба.",
+            level: game.accuracy, max: 100, currency: "GM", base: 100 / SCALE, growth: 1.15,
+            cost: l => (100 / SCALE) * Math.pow(1.15, l),
+            effect: `Сейчас +${fmt(game.accuracy / SCALE)} GM к базовому клику`,
+            buy: () => game.accuracy++ },
+          { id: "energyClick", name: "Энергия Кликов", desc: "Увеличивает множитель дохода от кликов.",
+            level: game.energyClick, max: 50, currency: "GM", cost: l => (500 / SCALE) * Math.pow(1.2, l),
+            effect: `Текущий бонус: +${fmt(game.energyClick ? 2 + (game.energyClick - 1) : 0, 1)}% к кликам`,
+            requirement: "Точность Пальца ур. 5", unlocked: game.accuracy >= 5,
+            buy: () => game.energyClick++ },
+          { id: "double", name: "Двойной Клик · способность", desc: "Удваивает доход от кликов на 10 секунд. Перезарядка: 45 секунд.",
+            special: true, currency: "GM", cost: 1500 / SCALE,
+            unlocked: game.doubleUnlocked || true,
+            buttonText: !game.doubleUnlocked ? "Открыть" :
+              (Date.now() < game.doubleUntil ? `Активно · ${Math.ceil((game.doubleUntil-Date.now())/1000)}с` :
+              Date.now() < game.doubleCooldownUntil ? `Перезарядка · ${Math.ceil((game.doubleCooldownUntil-Date.now())/1000)}с` : "Активировать"),
+            canBuy: !game.doubleUnlocked || (Date.now() >= game.doubleCooldownUntil && Date.now() >= game.doubleUntil),
+            buy: () => {
+              if (!game.doubleUnlocked) game.doubleUnlocked = true;
+              else { game.doubleUntil = Date.now() + 10000; game.doubleCooldownUntil = Date.now() + 45000; }
+            }},
+          { id: "metaClick", name: "Неутомимость · постоянный бонус", desc: "Сохраняется после перерождения и постоянно усиливает базовый клик.",
+            level: game.metaClick, max: 100, currency: "KF", cost: l => (1 / SCALE) * Math.pow(1.5, l),
+            effect: `Постоянно +${fmt(game.metaClick * (5 / SCALE))} GM к базовому клику`,
+            requirement: "Нужно хотя бы одно перерождение", unlocked: game.prestigeCount > 0,
+            buy: () => game.metaClick++ }
+        ]
+      },
+      {
+        section: "II. Множители кликов",
+        items: [
+          { id: "magnet", name: "Магнетизм Золота", desc: "Увеличивает эффективность бонусов к кликам.",
+            level: game.magnet, max: 20, currency: "GM", cost: l => (10000 / SCALE) * Math.pow(1.5, l),
+            effect: `Множитель улучшения: +${fmt(game.magnet ? 5 + (game.magnet - 1) * 2 : 0, 1)}%`,
+            requirement: "Энергия Кликов ур. 10", unlocked: game.energyClick >= 10,
+            buy: () => game.magnet++ },
+          { id: "focus", name: "Фокусировка · способность", desc: "На 15 секунд добавляет +10% к шансу крита и +50% к урону крита. Перезарядка: 90 секунд.",
+            special: true, currency: "GM", cost: 5000 / SCALE,
+            unlocked: game.focusUnlocked || game.accuracy >= 20,
+            buttonText: !game.focusUnlocked ? "Открыть" :
+              (Date.now() < game.focusUntil ? `Активно · ${Math.ceil((game.focusUntil-Date.now())/1000)}с` :
+              Date.now() < game.focusCooldownUntil ? `Перезарядка · ${Math.ceil((game.focusCooldownUntil-Date.now())/1000)}с` : "Активировать"),
+            requirement: "Точность Пальца ур. 20",
+            canBuy: game.accuracy >= 20 && (!game.focusUnlocked ||
+              (Date.now() >= game.focusCooldownUntil && Date.now() >= game.focusUntil)),
+            buy: () => {
+              if (!game.focusUnlocked) game.focusUnlocked = true;
+              else { game.focusUntil = Date.now() + 15000; game.focusCooldownUntil = Date.now() + 90000; }
+            }},
+          { id: "metaDuration", name: "Поток Сознания · постоянный бонус", desc: "Увеличивает длительность активных способностей клика на 15% за уровень.",
+            level: game.metaDuration, max: 100, currency: "KF", cost: l => (5 / SCALE) * Math.pow(1.5, l),
+            effect: `Бонус к длительности: +${game.metaDuration * 15}%`,
+            requirement: "Нужно хотя бы одно перерождение", unlocked: game.prestigeCount > 0,
+            buy: () => game.metaDuration++ }
+        ]
+      },
+      {
+        section: "III. Критические клики",
+        items: [
+          { id: "critChance", name: "Шанс крит. клика", desc: "Увеличивает базовый шанс критического клика.",
+            level: game.critChanceLevel, max: 10, currency: "GM", cost: l => (2500 / SCALE) * Math.pow(1.3, l),
+            effect: `Шанс от улучшения: +${fmt(game.critChanceLevel ? 1 + (game.critChanceLevel - 1) * .5 : 0, 1)}%`,
+            buy: () => game.critChanceLevel++ },
+          { id: "critPower", name: "Сила крит. клика", desc: "Увеличивает множитель дохода от критического клика.",
+            level: game.critPowerLevel, max: 10, currency: "GM", cost: l => (7500 / SCALE) * Math.pow(1.4, l),
+            effect: `Множитель крита: x${fmt(game.critPowerLevel ? 2 + (game.critPowerLevel - 1) * .2 : 1.5, 1)}`,
+            requirement: "Шанс крит. клика ур. 5", unlocked: game.critChanceLevel >= 5,
+            buy: () => game.critPowerLevel++ }
+        ]
+      },
+      {
+        section: "IV. Престиж",
+        items: [
+          { id: "prestige", name: "Реинкарнация Фокуса", desc: `Сбросит прогресс текущего забега и выдаст KF. За каждые ${fmt(PRESTIGE_THRESHOLD)} GM заработка — 1 KF до бонуса памяти.`,
+            special: true, currency: "", cost: 0,
+            buttonText: `Переродиться · получить ${fmt(prestigeReward())} KF`,
+            canBuy: game.totalEarned >= PRESTIGE_THRESHOLD,
+            requirement: `Нужно заработать ${fmt(PRESTIGE_THRESHOLD)} GM за текущий забег`,
+            buy: doPrestige },
+          { id: "memory", name: "Память Предков", desc: "Увеличивает получаемое количество KF на 10% за уровень.",
+            level: game.metaMemory, max: 100, currency: "KF", cost: l => (50 / SCALE) * Math.pow(1.5, l),
+            effect: `Бонус KF: +${game.metaMemory * 10}%`,
+            requirement: "Нужно хотя бы одно перерождение", unlocked: game.prestigeCount > 0,
+            buy: () => game.metaMemory++ }
+        ]
+      },
+      {
+        section: "V. Исследования",
+        items: [
+          { id: "researchDepth", name: "Глубинное Понимание Кликов", desc: "Все клики получают +25% к доходу.",
+            research: true, bought: game.researchDepth, currency: "GM", cost: 25000 / SCALE,
+            requirement: "Магнетизм Золота ур. 5", unlocked: game.magnet >= 5,
+            buy: () => game.researchDepth = true },
+          { id: "researchSuper", name: "Сверхъестественная Точность", desc: "Добавляет +5% к шансу критического клика и +0,5 к множителю крита.",
+            research: true, bought: game.researchSuper, currency: "GM", cost: 100000 / SCALE,
+            requirement: "Глубинное Понимание Кликов", unlocked: game.researchDepth,
+            buy: () => game.researchSuper = true }
+        ]
       }
+    ];
+  }
 
-      return { score: 0, energy: MAX_ENERGY, taps: 0 };
-    }
+  function prestigeReward() {
+    if (game.totalEarned < PRESTIGE_THRESHOLD) return 0;
+    return game.totalEarned / PRESTIGE_THRESHOLD * (1 + game.metaMemory * .1);
+  }
 
-    function loadDaily() {
-      try {
-        const saved = JSON.parse(localStorage.getItem(DAILY_KEY));
+  function renderUpgrades() {
+    $("upgradeBalance").textContent = `${fmt(game.score)} GM`;
+    $("upgradeKF").textContent = `${fmt(game.kf)} KF`;
 
-        if (saved) {
-          return {
-            lastClaimDate: saved.lastClaimDate || "",
-            streak: Math.max(0, Number(saved.streak) || 0)
-          };
-        }
-      } catch (error) {
-        console.log("Не удалось загрузить ежедневный бонус.");
-      }
+    const root = $("upgradeLists");
+    root.innerHTML = "";
 
-      return { lastClaimDate: "", streak: 0 };
-    }
+    upgradeData().forEach(group => {
+      const heading = document.createElement("h3");
+      heading.className = "section-heading";
+      heading.textContent = group.section;
+      root.appendChild(heading);
 
-    const game = loadGame();
-    const daily = loadDaily();
+      const list = document.createElement("div");
+      list.className = "upgrade-list";
 
-    function saveGame() {
-      localStorage.setItem(GAME_KEY, JSON.stringify({
-        score: game.score,
-        energy: game.energy,
-        taps: game.taps,
-        lastTime: Date.now()
-      }));
-    }
+      group.items.forEach(item => {
+        const card = document.createElement("article");
+        card.className = "upgrade-card";
 
-    function saveDaily() {
-      localStorage.setItem(DAILY_KEY, JSON.stringify(daily));
-    }
+        const levelText = item.special || item.research
+          ? (item.research ? (item.bought ? "Изучено" : "Исследование") : "Способность")
+          : `Ур. ${item.level}/${item.max}`;
 
-    function localDateKey(date = new Date()) {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const day = String(date.getDate()).padStart(2, "0");
-      return `${year}-${month}-${day}`;
-    }
+        let cost = typeof item.cost === "function" ? item.cost(item.level || 0) : item.cost;
+        const alreadyDone = item.research && item.bought;
+        const maxed = item.max != null && item.level >= item.max;
+        const currencyBalance = item.currency === "KF" ? game.kf : game.score;
+        const unlocked = item.unlocked !== false;
+        const affordable = !item.currency || currencyBalance >= cost;
+        let disabled = alreadyDone || maxed || !unlocked || !affordable;
 
-    function getYesterdayKey() {
-      const date = new Date();
-      date.setDate(date.getDate() - 1);
-      return localDateKey(date);
-    }
+        if (item.special && item.canBuy !== undefined) disabled = !item.canBuy || !affordable;
+        if (item.id === "focus" && item.canBuy !== undefined) disabled = !item.canBuy || !affordable;
 
-    function getNextStreak() {
-      if (daily.lastClaimDate === localDateKey()) {
-        return Math.max(1, daily.streak);
-      }
+        const priceText = item.currency
+          ? `Цена: ${fmt(cost)} ${item.currency}`
+          : (item.id === "prestige" ? "Сброс прогресса текущего забега" : "");
 
-      if (daily.lastClaimDate === getYesterdayKey()) {
-        return Math.min(7, daily.streak + 1);
-      }
-
-      return 1;
-    }
-
-    function updateBonusTimer() {
-      const timer = document.getElementById("bonusTimer");
-      const now = new Date();
-      const nextDay = new Date(now);
-
-      nextDay.setHours(24, 0, 0, 0);
-
-      const secondsLeft = Math.max(
-        0,
-        Math.floor((nextDay.getTime() - now.getTime()) / 1000)
-      );
-
-      const hours = String(Math.floor(secondsLeft / 3600)).padStart(2, "0");
-      const minutes = String(Math.floor((secondsLeft % 3600) / 60)).padStart(2, "0");
-      const seconds = String(secondsLeft % 60).padStart(2, "0");
-
-      const claimedToday = daily.lastClaimDate === localDateKey();
-
-      timer.textContent = claimedToday
-        ? `Следующий подарок через ${hours}:${minutes}:${seconds}`
-        : `Подарок доступен сейчас · новый день через ${hours}:${minutes}:${seconds}`;
-    }
-
-    function renderGame() {
-      scoreElement.textContent = game.score.toLocaleString("ru-RU");
-      energyText.textContent = `${game.energy} / ${MAX_ENERGY}`;
-      energyBar.style.width = `${(game.energy / MAX_ENERGY) * 100}%`;
-      tapButton.disabled = game.energy < 1;
-
-      gameHint.textContent = game.energy < 1
-        ? "Энергия закончилась — она постепенно восстановится"
-        : "Нажимай на монету, чтобы заработать";
-
-      document.getElementById("profileScore").textContent =
-        `${game.score.toLocaleString("ru-RU")} монет`;
-      document.getElementById("profileTaps").textContent =
-        game.taps.toLocaleString("ru-RU");
-      document.getElementById("profileStreak").textContent =
-        `${daily.streak} ${daily.streak === 1 ? "день" : "дней"}`;
-    }
-
-    function renderDaily() {
-      const nextStreak = getNextStreak();
-      const alreadyClaimed = daily.lastClaimDate === localDateKey();
-
-      dailyGrid.innerHTML = "";
-
-      DAILY_REWARDS.forEach((reward, index) => {
-        const dayNumber = index + 1;
-        const card = document.createElement("div");
-        card.className = "day-card";
-
-        const isCurrentDay = dayNumber === nextStreak && !alreadyClaimed;
-        const isClaimed = alreadyClaimed && dayNumber <= daily.streak;
-
-        if (isCurrentDay) card.classList.add("today");
-        if (isClaimed) card.classList.add("claimed");
+        const actionLabel = item.buttonText || (alreadyDone ? "Изучено" : maxed ? "Максимум" : `Купить · ${priceText}`);
 
         card.innerHTML = `
-          <span class="gift-icon">${isClaimed ? "✅" : "🎁"}</span>
-          <span class="day-name">День ${dayNumber}</span>
-          <span class="day-reward">+${reward} монет</span>
-        `;
+          <div class="upgrade-top">
+            <div class="upgrade-name">${item.name}</div>
+            <div class="upgrade-level">${levelText}</div>
+          </div>
+          <div class="upgrade-desc">${item.desc}</div>
+          ${item.effect ? `<div class="muted">${item.effect}</div>` : ""}
+          ${item.requirement ? `<div class="requirement" style="margin-top:7px">Требование: ${item.requirement}</div>` : ""}
+          <div class="upgrade-bottom">
+            <span class="requirement">${priceText}</span>
+            <button class="buy-button" ${disabled ? "disabled" : ""}>${actionLabel}</button>
+          </div>`;
 
-        dailyGrid.appendChild(card);
-      });
+        const button = card.querySelector("button");
+        button.addEventListener("click", () => {
+          if (disabled) return;
 
-      if (alreadyClaimed) {
-        claimBonusButton.disabled = true;
-        claimBonusButton.textContent = "Подарок уже получен сегодня";
-      } else {
-        claimBonusButton.disabled = false;
-        claimBonusButton.textContent =
-          `Забрать подарок: +${DAILY_REWARDS[nextStreak - 1]} монет`;
-      }
+          if (item.id === "prestige") {
+            item.buy();
+            return;
+          }
 
-      updateBonusTimer();
-    }
+          if (item.currency === "KF") game.kf -= cost;
+          else if (item.currency === "GM") game.score -= cost;
 
-    function render() {
-      renderGame();
-      renderDaily();
-    }
+          if (item.id === "double" && !game.doubleUnlocked) {
+            game.doubleUnlocked = true;
+          } else if (item.id === "focus" && !game.focusUnlocked) {
+            game.focusUnlocked = true;
+          } else {
+            item.buy();
+          }
 
-    function showMessage(message) {
-      if (tg?.showAlert) {
-        tg.showAlert(message);
-      } else {
-        alert(message);
-      }
-    }
-
-    // Звуковые эффекты и фоновая мелодия
-    let audioContext = null;
-    let musicTimer = null;
-    let musicNoteIndex = 0;
-
-    let musicEnabled =
-      localStorage.getItem(MUSIC_SETTING_KEY) === "true";
-    let tapSoundEnabled =
-      localStorage.getItem(TAP_SETTING_KEY) !== "false";
-
-    const melody = [
-      261.63, 329.63, 392.00, 329.63,
-      293.66, 349.23, 440.00, 349.23
-    ];
-
-    function getAudioContext() {
-      const AudioContextClass =
-        window.AudioContext || window.webkitAudioContext;
-
-      if (!AudioContextClass) return null;
-
-      audioContext ??= new AudioContextClass();
-
-      if (audioContext.state === "suspended") {
-        audioContext.resume();
-      }
-
-      return audioContext;
-    }
-
-    function playTone(
-      frequency,
-      duration = 0.14,
-      volume = 0.04,
-      type = "sine"
-    ) {
-      const context = getAudioContext();
-      if (!context) return;
-
-      const oscillator = context.createOscillator();
-      const gain = context.createGain();
-
-      oscillator.type = type;
-      oscillator.frequency.setValueAtTime(
-        frequency,
-        context.currentTime
-      );
-
-      gain.gain.setValueAtTime(volume, context.currentTime);
-      gain.gain.exponentialRampToValueAtTime(
-        0.001,
-        context.currentTime + duration
-      );
-
-      oscillator.connect(gain);
-      gain.connect(context.destination);
-
-      oscillator.start();
-      oscillator.stop(context.currentTime + duration);
-    }
-
-    function startMusic() {
-      if (!musicEnabled || musicTimer) return;
-
-      getAudioContext();
-      musicNoteIndex = 0;
-
-      function playNextNote() {
-        if (!musicEnabled) return;
-
-        const note = melody[musicNoteIndex % melody.length];
-        playTone(note, 0.42, 0.018, "sine");
-        musicNoteIndex += 1;
-      }
-
-      playNextNote();
-      musicTimer = setInterval(playNextNote, 520);
-    }
-
-    function stopMusic() {
-      if (musicTimer) {
-        clearInterval(musicTimer);
-        musicTimer = null;
-      }
-    }
-
-    function playTapSound() {
-      if (tapSoundEnabled) {
-        playTone(620, 0.09, 0.045, "triangle");
-      }
-    }
-
-    function playRewardSound() {
-      playTone(660, 0.12, 0.05);
-      setTimeout(() => playTone(880, 0.18, 0.05), 110);
-    }
-
-    function animateCoinToBalance() {
-      const buttonRect = tapButton.getBoundingClientRect();
-      const scoreRect = scoreElement.getBoundingClientRect();
-
-      // Случайная точка внутри круглой кнопки.
-      const centerX = buttonRect.left + buttonRect.width / 2;
-      const centerY = buttonRect.top + buttonRect.height / 2;
-      const angle = Math.random() * Math.PI * 2;
-      const radius = Math.sqrt(Math.random()) * buttonRect.width * 0.32;
-
-      const startX = centerX + Math.cos(angle) * radius;
-      const startY = centerY + Math.sin(angle) * radius;
-      const endX = scoreRect.left + scoreRect.width / 2;
-      const endY = scoreRect.top + scoreRect.height / 2;
-
-      const coin = document.createElement("span");
-      coin.className = "flying-coin";
-      coin.textContent = "🪙";
-      coin.style.left = `${startX}px`;
-      coin.style.top = `${startY}px`;
-      coin.style.transform = "translate(-50%, -50%) scale(1)";
-      document.body.appendChild(coin);
-
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          coin.style.transform =
-            `translate(calc(-50% + ${endX - startX}px), ` +
-            `calc(-50% + ${endY - startY}px)) scale(.25) rotate(360deg)`;
-          coin.style.opacity = "0";
+          saveGame();
+          renderAll();
         });
+
+        list.appendChild(card);
       });
 
-      setTimeout(() => coin.remove(), 750);
+      root.appendChild(list);
+    });
+  }
 
-      const number = document.createElement("span");
-      number.className = "tap-number";
-      number.textContent = "+1";
-      number.style.left = `${startX}px`;
-      number.style.top = `${startY}px`;
-      document.body.appendChild(number);
-
-      setTimeout(() => number.remove(), 750);
+  function doPrestige() {
+    const reward = prestigeReward();
+    if (reward <= 0) {
+      showMessage(`Сначала заработай ${fmt(PRESTIGE_THRESHOLD)} GM за этот забег.`);
+      return;
     }
 
-    tapButton.addEventListener("click", () => {
-      if (game.energy < 1) return;
+    const confirmed = confirm(`Переродиться и получить ${fmt(reward)} KF? Прогресс текущего забега сбросится.`);
+    if (!confirmed) return;
 
-      // Первый пользовательский жест позволяет браузеру включить аудио.
-      getAudioContext();
-      startMusic();
+    const preserved = {
+      kf: game.kf + reward,
+      metaClick: game.metaClick,
+      metaDuration: game.metaDuration,
+      metaMemory: game.metaMemory,
+      prestigeCount: game.prestigeCount + 1,
+      lifetimeCrits: game.lifetimeCrits,
+      achievementClaimed: game.achievementClaimed,
+      achievementBonusChance: game.achievementBonusChance
+    };
 
-      game.score += 1;
-      game.energy -= 1;
-      game.taps += 1;
+    game = freshGame();
+    Object.assign(game, preserved);
+    saveGame();
+    renderAll();
+    showMessage(`Перерождение завершено! Получено ${fmt(reward)} KF.`);
+  }
 
-      animateCoinToBalance();
-      playTapSound();
-      tg?.HapticFeedback?.impactOccurred("light");
+  function renderDaily() {
+    const claimed = daily.lastClaimDate === todayKey();
+    const nextStreak = getNextStreak();
+    $("dailyGrid").innerHTML = "";
 
-      saveGame();
-      renderGame();
+    dailyRewards.forEach((reward, index) => {
+      const day = index + 1;
+      const isToday = day === nextStreak && !claimed;
+      const isClaimed = claimed && day <= daily.streak;
+      const card = document.createElement("div");
+      card.className = `day-card${isToday ? " today" : ""}${isClaimed ? " claimed" : ""}`;
+      card.innerHTML = `
+        <span class="gift-icon">${isClaimed ? "✅" : "🎁"}</span>
+        <span class="day-name">День ${day}</span>
+        <span class="day-reward">+${fmt(reward)} GM</span>`;
+      $("dailyGrid").appendChild(card);
     });
 
-    claimBonusButton.addEventListener("click", () => {
-      if (daily.lastClaimDate === localDateKey()) {
-        showMessage("Ты уже получил подарок сегодня. Загляни завтра!");
-        return;
-      }
+    const claim = $("claimBonus");
+    claim.disabled = claimed;
+    claim.textContent = claimed
+      ? "Подарок уже получен сегодня"
+      : `Забрать подарок: +${fmt(dailyRewards[nextStreak - 1])} GM`;
 
-      const nextStreak = getNextStreak();
-      const reward = DAILY_REWARDS[nextStreak - 1];
+    updateBonusTimer();
+  }
 
-      daily.streak = nextStreak;
-      daily.lastClaimDate = localDateKey();
-      game.score += reward;
+  function updateBonusTimer() {
+    const now = new Date();
+    const nextDay = new Date(now);
+    nextDay.setHours(24, 0, 0, 0);
+    const left = Math.max(0, Math.floor((nextDay - now) / 1000));
+    const h = String(Math.floor(left / 3600)).padStart(2, "0");
+    const m = String(Math.floor((left % 3600) / 60)).padStart(2, "0");
+    const s = String(left % 60).padStart(2, "0");
+    $("bonusTimer").textContent = daily.lastClaimDate === todayKey()
+      ? `Следующий подарок через ${h}:${m}:${s}`
+      : `Подарок доступен · новый день через ${h}:${m}:${s}`;
+  }
 
+  function renderTasks() {
+    if (daily.challengeDate !== todayKey()) {
+      daily.challengeDate = todayKey();
+      daily.challengeDone = false;
+      daily.challengeClaimed = false;
+      saveDaily();
+    }
+
+    $("challengeText").textContent = daily.challengeClaimed
+      ? "Марафон пройден! Награда получена."
+      : daily.challengeDone
+        ? "Марафон пройден! Награда: 25 GM и x1,5 к кликам на 5 минут."
+        : `Нажми ${CHALLENGE_CLICKS} раз за 60 секунд. Награда: 25 GM и x1,5 к кликам на 5 минут.`;
+
+    $("startChallenge").disabled = challenge.active || daily.challengeDone || daily.challengeClaimed;
+    $("startChallenge").textContent = challenge.active ? "Марафон идёт…" :
+      daily.challengeDone ? "Марафон выполнен" : "Начать марафон";
+
+    $("achievementText").textContent = game.achievementClaimed
+      ? `Достижение получено: ${game.lifetimeCrits} критов.`
+      : `Критические клики: ${game.lifetimeCrits} / ${ACHIEVEMENT_CRITS}. Награда: 0,001 KF и +0,5% постоянного шанса крита.`;
+    $("achievementBar").style.width =
+      `${Math.min(100, game.lifetimeCrits / ACHIEVEMENT_CRITS * 100)}%`;
+
+    if (challenge.active) {
+      const seconds = Math.max(0, Math.ceil((challenge.endsAt - Date.now()) / 1000));
+      $("challengeTimer").textContent = `Осталось: ${seconds} сек. · клики: ${game.taps - challenge.startingTaps}/${CHALLENGE_CLICKS}`;
+    } else {
+      $("challengeTimer").textContent = "";
+    }
+  }
+
+  function renderAll() {
+    renderGame();
+    renderUpgrades();
+    renderDaily();
+    renderTasks();
+  }
+
+  function finishChallenge(success) {
+    clearInterval(challenge.timer);
+    challenge.active = false;
+    if (success) {
+      daily.challengeDone = true;
+      game.score += 25000 / SCALE;
+      game.totalEarned += 25000 / SCALE;
+      game.challengeMultiplierUntil = Date.now() + 5 * 60 * 1000;
       saveDaily();
       saveGame();
-      render();
-
-      playRewardSound();
+      playReward();
       tg?.HapticFeedback?.notificationOccurred("success");
-      showMessage(`Подарок получен: +${reward} монет!`);
-    });
+      showMessage("Марафон выполнен! +25 GM и множитель кликов x1,5 на 5 минут.");
+    } else {
+      showMessage("Время вышло. Попробуй марафон завтра.");
+    }
+    renderAll();
+  }
 
-    // Переключение страниц нижнего меню
-    document.querySelectorAll(".bottom-nav button").forEach((button) => {
-      button.addEventListener("click", () => {
-        const pageName = button.dataset.page;
+  $("tapButton").addEventListener("click", () => {
+    if (game.energy < 1) return;
 
-        document.querySelectorAll(".bottom-nav button").forEach((item) => {
-          item.classList.toggle("active", item === button);
-        });
+    getAudio();
+    startMusic();
 
-        document.querySelectorAll(".page").forEach((page) => {
-          page.classList.toggle(
-            "active",
-            page.id === `page-${pageName}`
-          );
-        });
+    game.energy -= 1;
+    game.taps += 1;
 
-        if (pageName === "profile") renderGame();
-        if (pageName === "bonus") renderDaily();
-      });
-    });
+    let isCrit = Math.random() < getCritChance();
+    let amount = getTapValue(isCrit);
 
-    // Открытие и закрытие меню настроек
-    document.getElementById("openSettings").addEventListener("click", () => {
-      settingsBackdrop.classList.add("open");
-    });
+    if (Date.now() < Number(game.challengeMultiplierUntil || 0)) amount *= 1.5;
+    game.score += amount;
+    game.totalEarned += amount;
 
-    document.getElementById("closeSettings").addEventListener("click", () => {
-      settingsBackdrop.classList.remove("open");
-    });
+    if (isCrit) {
+      game.crits += 1;
+      game.lifetimeCrits += 1;
+    }
 
-    settingsBackdrop.addEventListener("click", (event) => {
-      if (event.target === settingsBackdrop) {
-        settingsBackdrop.classList.remove("open");
-      }
-    });
+    animateOmNom(amount);
+    if (soundEnabled) tone(isCrit ? 840 : 620, .09, .045, "triangle");
+    tg?.HapticFeedback?.impactOccurred(isCrit ? "medium" : "light");
 
-    // Переключатели музыки и звуков нажатия
-    musicToggle.checked = musicEnabled;
-    tapSoundToggle.checked = tapSoundEnabled;
+    if (challenge.active && game.taps - challenge.startingTaps >= CHALLENGE_CLICKS) {
+      finishChallenge(true);
+    }
 
-    musicToggle.addEventListener("change", () => {
-      musicEnabled = musicToggle.checked;
-      localStorage.setItem(MUSIC_SETTING_KEY, String(musicEnabled));
+    if (!game.achievementClaimed && game.lifetimeCrits >= ACHIEVEMENT_CRITS) {
+      game.achievementClaimed = true;
+      game.kf += 1 / SCALE;
+      game.achievementBonusChance += 0.005; // +0,5 процентного пункта
+      playReward();
+      showMessage("Достижение «Король критов»! Получено 0,001 KF и +0,5% к постоянному шансу крита.");
+    }
 
-      if (musicEnabled) {
-        startMusic();
+    saveGame();
+    renderAll();
+  });
+
+  $("claimBonus").addEventListener("click", () => {
+    if (daily.lastClaimDate === todayKey()) return;
+    const streak = getNextStreak();
+    const reward = dailyRewards[streak - 1];
+    daily.streak = streak;
+    daily.lastClaimDate = todayKey();
+    game.score += reward;
+    game.totalEarned += reward;
+    saveDaily();
+    saveGame();
+    playReward();
+    tg?.HapticFeedback?.notificationOccurred("success");
+    renderAll();
+    showMessage(`Подарок получен: +${fmt(reward)} GM!`);
+  });
+
+  $("startChallenge").addEventListener("click", () => {
+    if (daily.challengeDone || daily.challengeClaimed || challenge.active) return;
+    challenge.active = true;
+    challenge.endsAt = Date.now() + 60000;
+    challenge.startingTaps = game.taps;
+    challenge.timer = setInterval(() => {
+      if (Date.now() >= challenge.endsAt) {
+        finishChallenge(game.taps - challenge.startingTaps >= CHALLENGE_CLICKS);
       } else {
-        stopMusic();
+        renderTasks();
       }
+    }, 250);
+    renderTasks();
+  });
+
+  document.querySelectorAll(".bottom-nav button").forEach(button => {
+    button.addEventListener("click", () => {
+      const name = button.dataset.page;
+      document.querySelectorAll(".bottom-nav button").forEach(x => x.classList.toggle("active", x === button));
+      document.querySelectorAll(".page").forEach(page => page.classList.toggle("active", page.id === `page-${name}`));
+      renderAll();
     });
+  });
 
-    tapSoundToggle.addEventListener("change", () => {
-      tapSoundEnabled = tapSoundToggle.checked;
-      localStorage.setItem(TAP_SETTING_KEY, String(tapSoundEnabled));
+  $("openSettings").addEventListener("click", () => $("settingsBackdrop").classList.add("open"));
+  $("closeSettings").addEventListener("click", () => $("settingsBackdrop").classList.remove("open"));
+  $("settingsBackdrop").addEventListener("click", e => {
+    if (e.target === $("settingsBackdrop")) $("settingsBackdrop").classList.remove("open");
+  });
 
-      if (tapSoundEnabled) {
-        playTapSound();
-      }
-    });
+  $("musicToggle").checked = musicEnabled;
+  $("tapSoundToggle").checked = soundEnabled;
 
-    render();
+  $("musicToggle").addEventListener("change", () => {
+    musicEnabled = $("musicToggle").checked;
+    localStorage.setItem(MUSIC_KEY, String(musicEnabled));
+    musicEnabled ? startMusic() : stopMusic();
+  });
 
-    // Восстановление энергии и обновление таймера ежедневного подарка.
-    let lastCheckedDate = localDateKey();
+  $("tapSoundToggle").addEventListener("change", () => {
+    soundEnabled = $("tapSoundToggle").checked;
+    localStorage.setItem(SOUND_KEY, String(soundEnabled));
+    if (soundEnabled) tone(620, .09, .04, "triangle");
+  });
 
-    setInterval(() => {
-      if (game.energy < MAX_ENERGY) {
-        game.energy = Math.min(
-          MAX_ENERGY,
-          game.energy + ENERGY_REGEN_PER_SECOND
-        );
-        saveGame();
-        renderGame();
-      }
+  renderAll();
 
-      updateBonusTimer();
+  let lastDate = todayKey();
+  setInterval(() => {
+    if (game.energy < MAX_ENERGY) {
+      game.energy = Math.min(MAX_ENERGY, game.energy + ENERGY_REGEN_PER_SECOND);
+      saveGame();
+    }
 
-      const today = localDateKey();
-      if (today !== lastCheckedDate) {
-        lastCheckedDate = today;
-        renderDaily();
-      }
-    }, 1000);
-  </script>
+    if (todayKey() !== lastDate) {
+      lastDate = todayKey();
+      renderDaily();
+      renderTasks();
+    }
+
+    renderGame();
+
+    // Перерисовывает таймеры способностей и состояние кнопок.
+    if (document.getElementById("page-upgrades").classList.contains("active")) {
+      renderUpgrades();
+    }
+    if (challenge.active) renderTasks();
+  }, 1000);
+})();
+</script>
 </body>
 </html>
-
