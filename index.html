@@ -209,7 +209,7 @@
     .bottom-nav {
       position: fixed; z-index: 10; bottom: max(10px, env(safe-area-inset-bottom));
       left: 50%; display: grid; width: min(calc(100% - 16px), 540px);
-      grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 3px; padding: 6px;
+      grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 3px; padding: 6px;
       transform: translateX(-50%); border: 1px solid #ffffff25;
       border-radius: 17px; background: #1a2038ee; backdrop-filter: blur(12px);
     }
@@ -236,7 +236,7 @@
 <main class="app">
   <header class="header"><h1>Ам Ням — кликер</h1></header>
 
-  <section class="page active" id="page-game">
+  <section class="page" id="page-game">
     <div class="score-card">
       <div class="score-label">ТВОЙ БАЛАНС · GM</div>
       <div id="score">0</div>
@@ -337,7 +337,7 @@
     </div>
   </section>
 
-  <section class="page" id="page-shop">
+  <section class="page active" id="page-shop">
     <h2 class="page-title">Магазин 🛒</h2>
     <p class="page-description">Покупай пополнение энергии и временные усиления за GM.</p>
     <div class="panel">
@@ -377,14 +377,7 @@
 </main>
 
 <nav class="bottom-nav" aria-label="Главное меню">
-  <button class="active" data-page="game">🎮<span>Игра</span></button>
-  <button data-page="upgrades">⬆️<span>Улучшения</span></button>
-  <button data-page="bonus">🎁<span>Бонусы</span></button>
-  <button data-page="tasks">🏆<span>Достижения</span></button>
-  <button data-page="stars">⭐<span>Звёзды</span></button>
-  <button data-page="shop">🛒<span>Магазин</span></button>
-  <button data-page="minigame">🎈<span>Стрельба</span></button>
-  <button data-page="profile">👤<span>Профиль</span></button>
+  <button class="active" data-page="shop">🛒<span>Магазин</span></button>
 </nav>
 
 <script>
@@ -432,7 +425,8 @@
       focusUntil: 0, focusCooldownUntil: 0, researchDepth: false,
       researchSuper: false, kf: 0, metaClick: 0, metaDuration: 0,
       metaMemory: 0, prestigeCount: 0, achievementClaimed: false,
-      achievementBonusChance: 0, buff: null, shooterCooldownUntil: 0
+      achievementBonusChance: 0, buff: null, shooterCooldownUntil: 0,
+      upgradePurchases: {}
     };
   }
 
@@ -449,6 +443,8 @@
         "magnet", "critChanceLevel", "critPowerLevel", "kf", "metaClick",
         "metaDuration", "metaMemory", "prestigeCount", "achievementBonusChance"
       ].forEach(key => result[key] = Math.max(0, Number(result[key]) || 0));
+      result.upgradePurchases = result.upgradePurchases &&
+        typeof result.upgradePurchases === "object" ? result.upgradePurchases : {};
       result.shooterCooldownUntil = Math.max(0, Number(result.shooterCooldownUntil) || 0);
       result.lastTime = Date.now();
       return result;
@@ -571,28 +567,91 @@
     return 1 + game.metaDuration * 0.15;
   }
 
-  function playReward() {
+  let audioContext = null;
+  let musicTimer = null;
+  let musicStep = 0;
+
+  function getAudioContext() {
     try {
       const AudioClass = window.AudioContext || window.webkitAudioContext;
-      if (!AudioClass) return;
-      const context = new AudioClass();
-      [660, 880].forEach((frequency, index) => {
-        const oscillator = context.createOscillator();
-        const gain = context.createGain();
-        oscillator.frequency.value = frequency;
-        gain.gain.setValueAtTime(0.04, context.currentTime + index * 0.12);
-        gain.gain.exponentialRampToValueAtTime(0.001, context.currentTime + index * 0.12 + 0.15);
-        oscillator.connect(gain);
-        gain.connect(context.destination);
-        oscillator.start(context.currentTime + index * 0.12);
-        oscillator.stop(context.currentTime + index * 0.12 + 0.16);
-      });
-      setTimeout(() => context.close(), 600);
+      if (!AudioClass) return null;
+      if (!audioContext) audioContext = new AudioClass();
+      if (audioContext.state === "suspended") audioContext.resume().catch(() => {});
+      return audioContext;
+    } catch {
+      return null;
+    }
+  }
+
+  function playTone(frequency, startTime, duration, volume, wave = "sine") {
+    const context = getAudioContext();
+    if (!context) return;
+    try {
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      oscillator.type = wave;
+      oscillator.frequency.setValueAtTime(frequency, startTime);
+      gain.gain.setValueAtTime(0.0001, startTime);
+      gain.gain.exponentialRampToValueAtTime(volume, startTime + 0.025);
+      gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+      oscillator.start(startTime);
+      oscillator.stop(startTime + duration + 0.02);
     } catch {}
   }
 
-  function prestigeReward() {
-    return game.totalEarned >= 50 ? 5 * (1 + game.metaMemory * 0.15) : 0;
+  function playButtonSound() {
+    const context = getAudioContext();
+    if (!context) return;
+    const now = context.currentTime;
+    playTone(740, now, 0.09, 0.045);
+    playTone(988, now + 0.035, 0.1, 0.035);
+  }
+
+  function startBackgroundMusic() {
+    if (musicTimer || !getAudioContext()) return;
+    const melody = [
+      523.25, 659.25, 783.99, 659.25,
+      587.33, 698.46, 880, 698.46,
+      523.25, 659.25, 783.99, 1046.5,
+      880, 783.99, 659.25, 587.33
+    ];
+    const bass = [130.81, 146.83, 174.61, 146.83];
+
+    musicTimer = setInterval(() => {
+      const context = getAudioContext();
+      if (!context) return;
+      const now = context.currentTime;
+      playTone(melody[musicStep % melody.length], now, 0.34, 0.012);
+      if (musicStep % 4 === 0) {
+        playTone(bass[Math.floor(musicStep / 4) % bass.length], now, 0.55, 0.018);
+      }
+      musicStep++;
+    }, 430);
+  }
+
+  function playReward() {
+    const context = getAudioContext();
+    if (!context) return;
+    const now = context.currentTime;
+    playTone(660, now, 0.15, 0.04);
+    playTone(880, now + 0.12, 0.18, 0.04);
+  }
+
+  function upgradePurchaseCount(item) {
+    if (Object.prototype.hasOwnProperty.call(game.upgradePurchases, item.id)) {
+      return Math.max(0, Number(game.upgradePurchases[item.id]) || 0);
+    }
+    if (item.level != null) return Math.max(0, Number(item.level) || 0);
+    if (item.research && item.bought) return 1;
+    if (item.id === "double" && game.doubleUnlocked) return 1;
+    if (item.id === "focus" && game.focusUnlocked) return 1;
+    return 0;
+  }
+
+  function upgradePrice(item) {
+    return Number(item.cost || 0) * Math.pow(1.15, upgradePurchaseCount(item));
   }
 
   function upgradeGroups() {
@@ -614,7 +673,7 @@
           id: "double", name: "Двойной Клик", special: true,
           desc: "Удваивает доход на 10 секунд. Перезарядка — 45 секунд.",
           currency: "GM", cost: 2,
-          buttonText: !game.doubleUnlocked ? "Открыть · 2 GM" :
+          buttonText: !game.doubleUnlocked ? "Открыть" :
             Date.now() < game.doubleUntil ? `Активно · ${Math.ceil((game.doubleUntil - Date.now()) / 1000)}с` :
             Date.now() < game.doubleCooldownUntil ? `Перезарядка · ${Math.ceil((game.doubleCooldownUntil - Date.now()) / 1000)}с` :
             "Активировать",
@@ -630,7 +689,7 @@
         },
         {
           id: "metaClick", name: "Неутомимость", level: game.metaClick, max: 100,
-          desc: "Постоянно усиливает базовый клик и сохраняется после перерождения.",
+          desc: "Постоянно усиливает базовый клик.",
           effect: `Бонус: +${fmt(game.metaClick * 0.01)} GM к базовому клику`,
           currency: "KF", cost: 1, buy: () => game.metaClick++
         }
@@ -646,7 +705,7 @@
           id: "focus", name: "Фокусировка", special: true,
           desc: "Усиливает критические клики на 15 секунд. Перезарядка — 90 секунд.",
           currency: "GM", cost: 2.5,
-          buttonText: !game.focusUnlocked ? "Открыть · 2,5 GM" :
+          buttonText: !game.focusUnlocked ? "Открыть" :
             Date.now() < game.focusUntil ? `Активно · ${Math.ceil((game.focusUntil - Date.now()) / 1000)}с` :
             Date.now() < game.focusCooldownUntil ? `Перезарядка · ${Math.ceil((game.focusCooldownUntil - Date.now()) / 1000)}с` :
             "Активировать",
@@ -659,6 +718,12 @@
               game.focusCooldownUntil = Date.now() + 90000;
             }
           }
+        },
+        {
+          id: "metaDuration", name: "Поток Сознания", level: game.metaDuration, max: 100,
+          desc: "Увеличивает длительность способностей на 15% за уровень.",
+          effect: `Бонус к длительности: +${game.metaDuration * 15}%`,
+          currency: "KF", cost: 3, buy: () => game.metaDuration++
         },
         {
           id: "critChance", name: "Шанс крит. клика",
@@ -675,33 +740,7 @@
           currency: "GM", cost: 5, buy: () => game.critPowerLevel++
         }
       ]},
-      { title: "III. Перерождения", items: [
-        {
-          id: "prestige", name: "Реинкарнация Фокуса", special: true,
-          desc: "Сбрось прогресс текущего забега и получи 5 KF. Нужно заработать 50 GM за забег.",
-          buttonText: `Переродиться · получить ${fmt(prestigeReward())} KF`,
-          canUse: game.totalEarned >= 50,
-          requirement: "Заработай за текущий забег 50 GM",
-          buy: doPrestige
-        },
-        {
-          id: "memory", name: "Память Предков", level: game.metaMemory, max: 100,
-          desc: "Увеличивает награду KF при перерождении на 15% за уровень.",
-          effect: `Бонус к награде KF: +${game.metaMemory * 15}%`,
-          currency: "KF", cost: 2,
-          requirement: "Требуется хотя бы 1 перерождение",
-          unlocked: game.prestigeCount > 0, buy: () => game.metaMemory++
-        },
-        {
-          id: "metaDuration", name: "Поток Сознания", level: game.metaDuration, max: 100,
-          desc: "Увеличивает длительность способностей на 15% за уровень.",
-          effect: `Бонус к длительности: +${game.metaDuration * 15}%`,
-          currency: "KF", cost: 3,
-          requirement: "Требуется хотя бы 1 перерождение",
-          unlocked: game.prestigeCount > 0, buy: () => game.metaDuration++
-        }
-      ]},
-      { title: "IV. Исследования", items: [
+      { title: "III. Исследования", items: [
         {
           id: "researchDepth", name: "Глубинное Понимание Кликов",
           research: true, bought: game.researchDepth,
@@ -720,31 +759,6 @@
         }
       ]}
     ];
-  }
-
-  function doPrestige() {
-    const reward = prestigeReward();
-    if (reward <= 0) {
-      showMessage("Сначала заработай 50 GM за текущий забег.");
-      return;
-    }
-    if (!confirm(`Переродиться и получить ${fmt(reward)} KF? Прогресс текущего забега сбросится.`)) return;
-
-    const preserve = {
-      kf: game.kf + reward,
-      metaClick: game.metaClick,
-      metaDuration: game.metaDuration,
-      metaMemory: game.metaMemory,
-      prestigeCount: game.prestigeCount + 1,
-      lifetimeCrits: game.lifetimeCrits,
-      achievementClaimed: game.achievementClaimed,
-      achievementBonusChance: game.achievementBonusChance
-    };
-    game = freshGame();
-    Object.assign(game, preserve);
-    saveGame();
-    renderAll();
-    showMessage(`Перерождение завершено! Получено ${fmt(reward)} KF.`);
   }
 
   function renderUpgrades() {
@@ -766,7 +780,7 @@
         const card = document.createElement("article");
         card.className = "upgrade-card";
 
-        const price = Number(item.cost || 0);
+        const price = upgradePrice(item);
         const wallet = item.currency === "KF" ? game.kf : game.score;
         const maxed = item.max != null && item.level >= item.max;
         const done = item.research && item.bought;
@@ -782,8 +796,15 @@
           ? (item.bought ? "Изучено" : "Исследование")
           : (item.special ? "Способность" : `Ур. ${item.level}/${item.max}`);
         const priceText = item.currency ? `${fmt(price)} ${item.currency}` : "";
-        const buttonText = item.buttonText ||
+        let buttonText = item.buttonText ||
           (done ? "Изучено" : maxed ? "Максимум" : `Купить · ${priceText}`);
+
+        if (item.id === "double" && !game.doubleUnlocked) {
+          buttonText = `Открыть · ${fmt(price)} GM`;
+        }
+        if (item.id === "focus" && !game.focusUnlocked) {
+          buttonText = `Открыть · ${fmt(price)} GM`;
+        }
 
         card.innerHTML = `
           <div class="upgrade-top">
@@ -800,12 +821,10 @@
 
         card.querySelector("button").addEventListener("click", () => {
           if (disabled) return;
-          if (item.id === "prestige") {
-            item.buy();
-            return;
-          }
           if (item.currency === "KF") game.kf -= price;
           if (item.currency === "GM") game.score -= price;
+
+          game.upgradePurchases[item.id] = upgradePurchaseCount(item) + 1;
           item.buy();
           saveGame();
           renderAll();
@@ -1361,6 +1380,12 @@
       renderAll();
     });
   });
+
+  document.addEventListener("click", event => {
+    if (!event.target.closest("button")) return;
+    playButtonSound();
+    startBackgroundMusic();
+  }, true);
 
   renderAll();
   drawShooter();
