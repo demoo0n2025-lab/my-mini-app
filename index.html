@@ -2,22 +2,83 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Моё мини-приложение</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#101426">
+  <title>Тапалка</title>
+
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-</head>
-<body>
-  <h1>Привет!</h1>
-  <p>Моё мини-приложение работает.</p>
-  <button id="button">Нажми меня</button>
 
-  <script>
-    const tg = window.Telegram.WebApp;
-    tg.ready();
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-    document.getElementById("button").addEventListener("click", () => {
-      tg.showAlert("Кнопка работает!");
-    });
-  </script>
-</body>
-</html>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px 18px;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background:
+        radial-gradient(circle at top, #35418b 0, transparent 42%),
+        #101426;
+    }
+
+    .app {
+      width: min(100%, 420px);
+      margin: 0 auto;
+      padding-top: 24px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
+    }
+
+    .subtitle {
+      margin: 0 0 32px;
+      color: #b8c0e0;
+    }
+
+    .score-card,
+    .energy-card {
+      padding: 18px;
+      border: 1px solid #ffffff1c;
+      border-radius: 20px;
+      background: #ffffff0d;
+    }
+
+    .score-label,
+    .energy-label {
+      color: #b8c0e0;
+      font-size: 14px;
+    }
+
+    #score {
+      margin-top: 6px;
+      font-size: 42px;
+      font-weight: 700;
+    }
+
+    .coin-button {
+      display: grid;
+      width: 230px;
+      height: 230px;
+      margin: 30px auto;
+      place-items: center;
+      border: 0;
+      border-radius: 50%;
+      color: #553600;
+      font-size: 100px;
+      cursor: pointer;
+      user-select: none;
+      touch-action: manipulation;
+      background: linear-gradient(145deg, #ffe77a, #ffab21);
+      box-shadow: 0 12px 0 #bd6d12, 0 20px 45px #0005;
+      transition: transform 0.08s, box-shadow 0.08s;
+    }
+
+    .coin-button:active {
+      transform: translateY(8px) scale(0.97);
+      box
