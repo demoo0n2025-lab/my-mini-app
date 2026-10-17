@@ -121,7 +121,7 @@
       font-size: 13px; line-height: 1.45;
     }
 
-    /* Оформление страницы ежедневных подарков */
+    /* Оформление ежедневных подарков */
     .daily-panel {
       overflow: hidden;
       border-color: #ffffff2b;
@@ -167,9 +167,7 @@
       gap: 8px; margin: 20px 0 10px; font-size: 15px;
     }
     .daily-section-title span { color: var(--muted); font-size: 11px; font-weight: 400; }
-    .daily-grid {
-      display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 7px;
-    }
+    .daily-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 7px; }
     .daily-day {
       position: relative; min-height: 67px; padding: 8px 3px;
       overflow: hidden; border: 1px solid #ffffff16; border-radius: 12px;
@@ -353,8 +351,8 @@
     <h2 class="page-title">Стрельба по шарикам 🎈</h2>
     <p class="page-description">
       Запуск стоит 10 энергии. Нажимай на поле, чтобы стрелять.
-      За каждое попадание получишь 2 энергии. Попади по 10 шарикам за 30 секунд,
-      чтобы победить и получить ещё 20 энергии. Перезарядка после победы — 10 минут.
+      За каждое попадание получишь 2 энергии. Попади по 12 шарикам за 25 секунд,
+      чтобы победить и восстановить энергию до 100. Перезарядка после победы — 10 минут.
     </p>
     <div class="panel">
       <div class="bonus-timer" id="shooterCooldown">Игра готова.</div>
@@ -399,12 +397,12 @@
 
   const MAX_ENERGY = 100;
   const ENERGY_REGEN_PER_SECOND = 1;
-  const PRICE_DIVISOR = 15;
   const GAME_KEY = "omnomClickerGameV5";
   const DAILY_KEY = "omnomClickerDailyV5";
-  const PUZZLE_COOLDOWN = 10 * 60 * 1000;
+  const SHOOTER_COOLDOWN = 10 * 60 * 1000;
   const SHOOTER_ENTRY_COST = 10;
-  const SHOOTER_GOAL = 10;
+  const SHOOTER_GOAL = 12;
+  const SHOOTER_DURATION = 25;
   const $ = id => document.getElementById(id);
 
   const fmt = (value, digits = 4) => Number(value || 0).toLocaleString("ru-RU", {
@@ -442,18 +440,18 @@
     try {
       const saved = JSON.parse(localStorage.getItem(GAME_KEY));
       if (!saved || typeof saved !== "object") return freshGame();
-      const game = { ...freshGame(), ...saved };
-      const elapsed = Math.max(0, (Date.now() - Number(game.lastTime || Date.now())) / 1000);
-      game.energy = Math.min(MAX_ENERGY, Math.max(0, Number(game.energy) || 0) +
+      const result = { ...freshGame(), ...saved };
+      const elapsed = Math.max(0, (Date.now() - Number(result.lastTime || Date.now())) / 1000);
+      result.energy = Math.min(MAX_ENERGY, Math.max(0, Number(result.energy) || 0) +
         Math.floor(elapsed * ENERGY_REGEN_PER_SECOND));
       [
         "score", "totalEarned", "taps", "lifetimeCrits", "accuracy", "energyClick",
         "magnet", "critChanceLevel", "critPowerLevel", "kf", "metaClick",
         "metaDuration", "metaMemory", "prestigeCount", "achievementBonusChance"
-      ].forEach(key => game[key] = Math.max(0, Number(game[key]) || 0));
-      game.shooterCooldownUntil = Math.max(0, Number(game.shooterCooldownUntil) || 0);
-      game.lastTime = Date.now();
-      return game;
+      ].forEach(key => result[key] = Math.max(0, Number(result[key]) || 0));
+      result.shooterCooldownUntil = Math.max(0, Number(result.shooterCooldownUntil) || 0);
+      result.lastTime = Date.now();
+      return result;
     } catch {
       return freshGame();
     }
@@ -507,12 +505,10 @@
     }
     return { type: "gm", amount: day / 10 };
   }
-
   function dailyRewardLabel(day) {
     const reward = dailyRewardForDay(day);
     return reward.type === "buff" ? "БАФ" : `${fmtDailyGM(reward.amount)} GM`;
   }
-
   function dailyRewardDescription(day) {
     const reward = dailyRewardForDay(day);
     return reward.type === "buff"
@@ -534,8 +530,7 @@
       (Date.now() < game.doubleUntil ? 2 : 1) * buffMultiplier();
   }
   function critChance() {
-    const levelBonus = game.critChanceLevel > 0
-      ? 0.02 + (game.critChanceLevel - 1) * 0.01 : 0;
+    const levelBonus = game.critChanceLevel * 0.003;
     const focusBonus = Date.now() < game.focusUntil ? 0.10 : 0;
     const researchBonus = game.researchSuper ? 0.10 : 0;
     const buffBonus = game.buff?.type === "crit" && Date.now() < game.buff.expiresAt
@@ -544,9 +539,8 @@
       focusBonus + researchBonus + buffBonus);
   }
   function critMultiplier() {
-    let value = game.critPowerLevel > 0
-      ? 2.5 + (game.critPowerLevel - 1) * 0.5 : 1.5;
-    if (game.researchSuper) value += 1;
+    let value = 1.5 * Math.pow(1.1, game.critPowerLevel);
+    if (game.researchSuper) value *= 1.8;
     if (Date.now() < game.focusUntil) value *= 1.5;
     return value;
   }
@@ -573,6 +567,9 @@
     const minutes = Math.max(1, Math.ceil((game.buff.expiresAt - Date.now()) / 60000));
     return `${game.buff.name} · ${minutes} мин.`;
   }
+  function durationMultiplier() {
+    return 1 + game.metaDuration * 0.15;
+  }
 
   function playReward() {
     try {
@@ -595,33 +592,29 @@
   }
 
   function prestigeReward() {
-    if (game.totalEarned < 10000) return 0;
-    return Math.floor(game.totalEarned / 1000) * (1 + game.metaMemory * 0.15);
+    return game.totalEarned >= 50 ? 5 * (1 + game.metaMemory * 0.15) : 0;
   }
 
   function upgradeGroups() {
-    const cost = (base, level, growth) => base * Math.pow(growth, level);
     return [
       { title: "I. Основной клик", items: [
         {
           id: "accuracy", name: "Точность Пальца", level: game.accuracy, max: 100,
           desc: "Повышает базовый доход за клик.",
           effect: `Бонус: +${fmt(game.accuracy * 0.0003)} GM к базовому клику`,
-          currency: "GM", cost: cost(1, game.accuracy, 1.25), buy: () => game.accuracy++
+          currency: "GM", cost: 0.05, buy: () => game.accuracy++
         },
         {
           id: "energy", name: "Энергия Кликов", level: game.energyClick, max: 50,
           desc: "Усиливает доход от кликов.",
           effect: `Уровень: ${game.energyClick}`,
-          currency: "GM", cost: cost(5, game.energyClick, 1.3),
-          requirement: "Точность Пальца ур. 5",
-          unlocked: game.accuracy >= 5, buy: () => game.energyClick++
+          currency: "GM", cost: 0.03, buy: () => game.energyClick++
         },
         {
           id: "double", name: "Двойной Клик", special: true,
           desc: "Удваивает доход на 10 секунд. Перезарядка — 45 секунд.",
-          currency: "GM", cost: 15,
-          buttonText: !game.doubleUnlocked ? `Открыть · ${fmt(15 / PRICE_DIVISOR)} GM` :
+          currency: "GM", cost: 2,
+          buttonText: !game.doubleUnlocked ? "Открыть · 2 GM" :
             Date.now() < game.doubleUntil ? `Активно · ${Math.ceil((game.doubleUntil - Date.now()) / 1000)}с` :
             Date.now() < game.doubleCooldownUntil ? `Перезарядка · ${Math.ceil((game.doubleCooldownUntil - Date.now()) / 1000)}с` :
             "Активировать",
@@ -630,7 +623,7 @@
           buy: () => {
             if (!game.doubleUnlocked) game.doubleUnlocked = true;
             else {
-              game.doubleUntil = Date.now() + 10000 * (1 + game.metaDuration * 0.25);
+              game.doubleUntil = Date.now() + 10000 * durationMultiplier();
               game.doubleCooldownUntil = Date.now() + 45000;
             }
           }
@@ -639,9 +632,7 @@
           id: "metaClick", name: "Неутомимость", level: game.metaClick, max: 100,
           desc: "Постоянно усиливает базовый клик и сохраняется после перерождения.",
           effect: `Бонус: +${fmt(game.metaClick * 0.01)} GM к базовому клику`,
-          currency: "KF", cost: cost(0.1, game.metaClick, 1.45),
-          requirement: "Нужно хотя бы одно перерождение",
-          unlocked: game.prestigeCount > 0, buy: () => game.metaClick++
+          currency: "KF", cost: 1, buy: () => game.metaClick++
         }
       ]},
       { title: "II. Усиления", items: [
@@ -649,26 +640,22 @@
           id: "magnet", name: "Магнетизм Золота", level: game.magnet, max: 20,
           desc: "Сильно усиливает доход от кликов.",
           effect: `Уровень: ${game.magnet}`,
-          currency: "GM", cost: cost(100, game.magnet, 1.6),
-          requirement: "Энергия Кликов ур. 10",
-          unlocked: game.energyClick >= 10, buy: () => game.magnet++
+          currency: "GM", cost: 3.5, buy: () => game.magnet++
         },
         {
           id: "focus", name: "Фокусировка", special: true,
-          desc: "На 15 секунд усиливает криты. Перезарядка — 90 секунд.",
-          currency: "GM", cost: 50,
-          requirement: "Точность Пальца ур. 20",
-          unlocked: game.accuracy >= 20,
-          buttonText: !game.focusUnlocked ? `Открыть · ${fmt(50 / PRICE_DIVISOR)} GM` :
+          desc: "Усиливает критические клики на 15 секунд. Перезарядка — 90 секунд.",
+          currency: "GM", cost: 2.5,
+          buttonText: !game.focusUnlocked ? "Открыть · 2,5 GM" :
             Date.now() < game.focusUntil ? `Активно · ${Math.ceil((game.focusUntil - Date.now()) / 1000)}с` :
             Date.now() < game.focusCooldownUntil ? `Перезарядка · ${Math.ceil((game.focusCooldownUntil - Date.now()) / 1000)}с` :
             "Активировать",
-          canUse: game.accuracy >= 20 && (!game.focusUnlocked ||
-            (Date.now() >= game.focusCooldownUntil && Date.now() >= game.focusUntil)),
+          canUse: !game.focusUnlocked ||
+            (Date.now() >= game.focusCooldownUntil && Date.now() >= game.focusUntil),
           buy: () => {
             if (!game.focusUnlocked) game.focusUnlocked = true;
             else {
-              game.focusUntil = Date.now() + 15000 * (1 + game.metaDuration * 0.25);
+              game.focusUntil = Date.now() + 15000 * durationMultiplier();
               game.focusCooldownUntil = Date.now() + 90000;
             }
           }
@@ -676,45 +663,41 @@
         {
           id: "critChance", name: "Шанс крит. клика",
           level: game.critChanceLevel, max: 10,
-          desc: "Повышает шанс критического клика.",
-          effect: `Бонус улучшений: +${fmt(game.critChanceLevel ? 2 + (game.critChanceLevel - 1) : 0, 1)}%`,
-          currency: "GM", cost: cost(25, game.critChanceLevel, 1.4),
-          buy: () => game.critChanceLevel++
+          desc: "Повышает шанс критического клика на 0,3% за уровень.",
+          effect: `Бонус улучшений: +${fmt(game.critChanceLevel * 0.3, 1)}%`,
+          currency: "GM", cost: 1, buy: () => game.critChanceLevel++
         },
         {
           id: "critPower", name: "Сила крит. клика",
           level: game.critPowerLevel, max: 10,
-          desc: "Повышает множитель критического клика.",
-          effect: `Множитель: x${fmt(game.critPowerLevel ? 2.5 + (game.critPowerLevel - 1) * 0.5 : 1.5, 1)}`,
-          currency: "GM", cost: cost(75, game.critPowerLevel, 1.5),
-          requirement: "Шанс крит. клика ур. 5",
-          unlocked: game.critChanceLevel >= 5, buy: () => game.critPowerLevel++
+          desc: "Увеличивает множитель критического клика на 10% за уровень.",
+          effect: `Множитель критического клика: x${fmt(1.5 * Math.pow(1.1, game.critPowerLevel), 2)}`,
+          currency: "GM", cost: 5, buy: () => game.critPowerLevel++
         }
       ]},
-      { title: "III. Перерождение", items: [
+      { title: "III. Перерождения", items: [
         {
           id: "prestige", name: "Реинкарнация Фокуса", special: true,
-          desc: "Сбрасывает прогресс текущего забега. Требуется 10 000 GM заработка.",
+          desc: "Сбрось прогресс текущего забега и получи 5 KF. Нужно заработать 50 GM за забег.",
           buttonText: `Переродиться · получить ${fmt(prestigeReward())} KF`,
-          canUse: game.totalEarned >= 10000,
-          requirement: "Заработай за забег 10 000 GM",
+          canUse: game.totalEarned >= 50,
+          requirement: "Заработай за текущий забег 50 GM",
           buy: doPrestige
         },
         {
           id: "memory", name: "Память Предков", level: game.metaMemory, max: 100,
-          desc: "Увеличивает количество KF при перерождении на 15% за уровень.",
-          effect: `Бонус KF: +${game.metaMemory * 15}%`,
-          currency: "KF", cost: cost(1, game.metaMemory, 1.5),
-          requirement: "Нужно хотя бы одно перерождение",
+          desc: "Увеличивает награду KF при перерождении на 15% за уровень.",
+          effect: `Бонус к награде KF: +${game.metaMemory * 15}%`,
+          currency: "KF", cost: 2,
+          requirement: "Требуется хотя бы 1 перерождение",
           unlocked: game.prestigeCount > 0, buy: () => game.metaMemory++
         },
         {
-          id: "metaDuration", name: "Поток Сознания",
-          level: game.metaDuration, max: 100,
-          desc: "Увеличивает длительность способностей на 25% за уровень.",
-          effect: `Бонус длительности: +${game.metaDuration * 25}%`,
-          currency: "KF", cost: cost(0.5, game.metaDuration, 1.5),
-          requirement: "Нужно хотя бы одно перерождение",
+          id: "metaDuration", name: "Поток Сознания", level: game.metaDuration, max: 100,
+          desc: "Увеличивает длительность способностей на 15% за уровень.",
+          effect: `Бонус к длительности: +${game.metaDuration * 15}%`,
+          currency: "KF", cost: 3,
+          requirement: "Требуется хотя бы 1 перерождение",
           unlocked: game.prestigeCount > 0, buy: () => game.metaDuration++
         }
       ]},
@@ -723,17 +706,17 @@
           id: "researchDepth", name: "Глубинное Понимание Кликов",
           research: true, bought: game.researchDepth,
           desc: "Все клики получают +50% к доходу.",
-          currency: "GM", cost: 250,
-          requirement: "Магнетизм Золота ур. 5",
-          unlocked: game.magnet >= 5, buy: () => game.researchDepth = true
+          currency: "GM", cost: 20,
+          buy: () => game.researchDepth = true
         },
         {
           id: "researchSuper", name: "Сверхъестественная Точность",
           research: true, bought: game.researchSuper,
-          desc: "Добавляет +10% к шансу крита и +1 к множителю крита.",
-          currency: "GM", cost: 1000,
-          requirement: "Глубинное Понимание Кликов",
-          unlocked: game.researchDepth, buy: () => game.researchSuper = true
+          desc: "Шанс крита +10%, множитель силы критического клика x1,8.",
+          currency: "GM", cost: 55,
+          requirement: "Сначала изучи Глубинное Понимание Кликов",
+          unlocked: game.researchDepth,
+          buy: () => game.researchSuper = true
         }
       ]}
     ];
@@ -742,7 +725,7 @@
   function doPrestige() {
     const reward = prestigeReward();
     if (reward <= 0) {
-      showMessage("Сначала заработай 10 000 GM за текущий забег.");
+      showMessage("Сначала заработай 50 GM за текущий забег.");
       return;
     }
     if (!confirm(`Переродиться и получить ${fmt(reward)} KF? Прогресс текущего забега сбросится.`)) return;
@@ -783,19 +766,22 @@
         const card = document.createElement("article");
         card.className = "upgrade-card";
 
-        const shownCost = item.currency ? Number(item.cost || 0) / PRICE_DIVISOR : 0;
+        const price = Number(item.cost || 0);
         const wallet = item.currency === "KF" ? game.kf : game.score;
         const maxed = item.max != null && item.level >= item.max;
         const done = item.research && item.bought;
         const unlocked = item.unlocked !== false;
-        let disabled = done || maxed || !unlocked || (item.currency && wallet < shownCost);
+
+        let disabled = done || maxed || !unlocked ||
+          (item.currency && wallet < price);
         if (item.canUse !== undefined) {
-          disabled = !item.canUse || (item.currency && wallet < shownCost);
+          disabled = !item.canUse || (item.currency && wallet < price);
         }
 
-        const levelText = item.research ? (item.bought ? "Изучено" : "Исследование") :
-          (item.special ? "Способность" : `Ур. ${item.level}/${item.max}`);
-        const priceText = item.currency ? `${fmt(shownCost)} ${item.currency}` : "";
+        const levelText = item.research
+          ? (item.bought ? "Изучено" : "Исследование")
+          : (item.special ? "Способность" : `Ур. ${item.level}/${item.max}`);
+        const priceText = item.currency ? `${fmt(price)} ${item.currency}` : "";
         const buttonText = item.buttonText ||
           (done ? "Изучено" : maxed ? "Максимум" : `Купить · ${priceText}`);
 
@@ -818,8 +804,8 @@
             item.buy();
             return;
           }
-          if (item.currency === "KF") game.kf -= shownCost;
-          if (item.currency === "GM") game.score -= shownCost;
+          if (item.currency === "KF") game.kf -= price;
+          if (item.currency === "GM") game.score -= price;
           item.buy();
           saveGame();
           renderAll();
@@ -836,7 +822,8 @@
     const day = claimed ? (daily.day || 1) : availableDailyDay();
     const reward = dailyRewardForDay(day);
 
-    $("dailyStreak").textContent = `🔥 Серия: ${claimed ? day : Math.max(0, day - 1)} ${day === 1 ? "день" : "дней"}`;
+    $("dailyStreak").textContent =
+      `🔥 Серия: ${claimed ? day : Math.max(0, day - 1)} ${day === 1 ? "день" : "дней"}`;
 
     $("dailyPreview").innerHTML = `
       <div class="daily-feature-label">${claimed ? `Подарок за День ${day}` : `Сегодня · День ${day}`}</div>
@@ -856,6 +843,7 @@
     const hours = String(Math.floor(secondsLeft / 3600)).padStart(2, "0");
     const minutes = String(Math.floor((secondsLeft % 3600) / 60)).padStart(2, "0");
     const seconds = String(secondsLeft % 60).padStart(2, "0");
+
     $("bonusTimer").textContent = claimed
       ? `Следующий подарок через ${hours}:${minutes}:${seconds}`
       : `Подарок доступен · новый день через ${hours}:${minutes}:${seconds}`;
@@ -920,7 +908,8 @@
     $("achievementText").textContent = game.achievementClaimed
       ? `Достижение получено! Критических кликов: ${game.lifetimeCrits}.`
       : `Критические клики: ${game.lifetimeCrits} / ${target}.`;
-    $("achievementBar").style.width = `${Math.min(100, game.lifetimeCrits / target * 100)}%`;
+    $("achievementBar").style.width =
+      `${Math.min(100, game.lifetimeCrits / target * 100)}%`;
 
     if (done && !game.achievementClaimed) {
       game.achievementClaimed = true;
@@ -1107,10 +1096,11 @@
   let shooterFrame = 0;
   let shooterLastTime = 0;
   let shooterSpawnTime = 0;
-  let shooterTimeLeft = 30;
+  let shooterTimeLeft = SHOOTER_DURATION;
   let shooterHits = 0;
   let shooterBalloons = [];
   let shooterBullets = [];
+  let lastShotAt = 0;
 
   function drawShooter() {
     const width = shooterCanvas.width;
@@ -1193,10 +1183,10 @@
     cancelAnimationFrame(shooterFrame);
 
     if (won) {
-      game.energy = Math.min(MAX_ENERGY, game.energy + 20);
-      game.shooterCooldownUntil = Date.now() + PUZZLE_COOLDOWN;
+      game.energy = MAX_ENERGY;
+      game.shooterCooldownUntil = Date.now() + SHOOTER_COOLDOWN;
       $("shooterStatus").textContent =
-        "Победа! Получено ещё 20 энергии. Перезарядка — 10 минут.";
+        "Победа! Энергия восстановлена до 100. Перезарядка — 10 минут.";
       playReward();
       tg?.HapticFeedback?.notificationOccurred("success");
     } else {
@@ -1217,14 +1207,14 @@
     shooterTimeLeft -= dt;
     shooterSpawnTime += dt;
 
-    if (shooterSpawnTime >= 0.75) {
+    if (shooterSpawnTime >= 0.62) {
       shooterSpawnTime = 0;
       const colors = ["#ff5d8f", "#ffd166", "#55d6be", "#8b7cff", "#ff934f"];
       shooterBalloons.push({
-        x: 35 + Math.random() * (shooterCanvas.width - 70),
-        y: shooterCanvas.height + 30,
-        radius: 22 + Math.random() * 9,
-        speed: 90 + Math.random() * 95,
+        x: 30 + Math.random() * (shooterCanvas.width - 60),
+        y: shooterCanvas.height + 25,
+        radius: 17 + Math.random() * 6,
+        speed: 115 + Math.random() * 100,
         color: colors[Math.floor(Math.random() * colors.length)]
       });
     }
@@ -1285,10 +1275,11 @@
     game.energy -= SHOOTER_ENTRY_COST;
     shooterActive = true;
     shooterHits = 0;
-    shooterTimeLeft = 30;
+    shooterTimeLeft = SHOOTER_DURATION;
     shooterSpawnTime = 0;
     shooterBalloons = [];
     shooterBullets = [];
+    lastShotAt = 0;
     shooterLastTime = performance.now();
 
     $("shooterStatus").textContent =
@@ -1302,6 +1293,10 @@
   shooterCanvas.addEventListener("pointerdown", event => {
     if (!shooterActive) return;
 
+    const now = performance.now();
+    if (now - lastShotAt < 110) return;
+    lastShotAt = now;
+
     const rect = shooterCanvas.getBoundingClientRect();
     const targetX = (event.clientX - rect.left) * shooterCanvas.width / rect.width;
     const targetY = (event.clientY - rect.top) * shooterCanvas.height / rect.height;
@@ -1310,7 +1305,7 @@
     const dx = targetX - startX;
     const dy = targetY - startY;
     const length = Math.hypot(dx, dy) || 1;
-    const speed = 620;
+    const speed = 540;
 
     shooterBullets.push({
       x: startX, y: startY,
