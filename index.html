@@ -1,4 +1,3 @@
-```html
 <!doctype html>
 <html lang="ru">
 <head>
@@ -121,6 +120,89 @@
       border-radius: 13px; background: #42e6950c; color: #d9ffe9;
       font-size: 13px; line-height: 1.45;
     }
+
+    /* Оформление страницы ежедневных подарков */
+    .daily-panel {
+      overflow: hidden;
+      border-color: #ffffff2b;
+      background:
+        radial-gradient(ellipse at 90% 0%, #a05cff24, transparent 40%),
+        radial-gradient(ellipse at 0% 0%, #ffd95a20, transparent 42%),
+        linear-gradient(145deg, #242b4d, #171b31 75%);
+      box-shadow: 0 16px 38px #0004, inset 0 1px #ffffff12;
+    }
+    .daily-hero {
+      position: relative; overflow: hidden; margin-bottom: 14px; padding: 17px;
+      border: 1px solid #ffffff20; border-radius: 17px;
+      background: linear-gradient(125deg, #ffe77a20, #a45cff19 58%, #42e69513);
+    }
+    .daily-hero::after {
+      content: "🎁"; position: absolute; right: 12px; top: 2px;
+      font-size: 56px; opacity: .23; transform: rotate(12deg);
+    }
+    .daily-kicker {
+      color: #ffe77a; font-size: 11px; font-weight: 800;
+      letter-spacing: 1.7px; text-transform: uppercase;
+    }
+    .daily-hero-title { margin: 7px 0 4px; font-size: 22px; font-weight: 800; }
+    .daily-hero-copy { max-width: 82%; color: #d5daef; font-size: 13px; line-height: 1.45; }
+    .daily-streak {
+      display: inline-flex; align-items: center; gap: 6px; margin-top: 12px;
+      padding: 7px 10px; border: 1px solid #ffe77a44; border-radius: 99px;
+      color: #ffe77a; background: #ffe77a12; font-size: 12px; font-weight: 700;
+    }
+    .daily-feature {
+      margin: 12px 0; padding: 14px; border: 1px solid #ffe77a55;
+      border-radius: 15px; background: linear-gradient(120deg, #ffe77a15, #ffffff08);
+      box-shadow: inset 0 1px #ffffff0c;
+    }
+    .daily-feature-label {
+      margin-bottom: 7px; color: #c6cbe0; font-size: 11px;
+      font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    }
+    .daily-feature-reward { color: #ffe77a; font-size: 20px; font-weight: 800; }
+    .daily-feature-desc { margin-top: 5px; color: #d7dcf2; font-size: 13px; line-height: 1.4; }
+    .daily-section-title {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px; margin: 20px 0 10px; font-size: 15px;
+    }
+    .daily-section-title span { color: var(--muted); font-size: 11px; font-weight: 400; }
+    .daily-grid {
+      display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 7px;
+    }
+    .daily-day {
+      position: relative; min-height: 67px; padding: 8px 3px;
+      overflow: hidden; border: 1px solid #ffffff16; border-radius: 12px;
+      background: #ffffff08; text-align: center; transition: .2s;
+    }
+    .daily-day-number { color: #c5cbe1; font-size: 10px; }
+    .daily-day-reward {
+      margin-top: 7px; color: #fff; font-size: 11px; font-weight: 800;
+      line-height: 1.2; overflow-wrap: anywhere;
+    }
+    .daily-day.buff-day .daily-day-reward { color: #d2a5ff; font-size: 17px; }
+    .daily-day.done {
+      border-color: #42e69550; background: linear-gradient(145deg, #42e69520, #ffffff08);
+    }
+    .daily-day.done .daily-day-number { color: #8af0bc; }
+    .daily-day.today {
+      border-color: #ffe77a; background: linear-gradient(145deg, #ffe77a2b, #ffae3020);
+      box-shadow: 0 0 16px #ffe77a20, inset 0 0 0 1px #ffe77a30;
+      transform: translateY(-2px);
+    }
+    .daily-day.today .daily-day-number,
+    .daily-day.today .daily-day-reward { color: #ffe77a; }
+    .daily-day.locked { opacity: .57; }
+    .daily-legend {
+      display: flex; flex-wrap: wrap; gap: 8px 13px; margin-top: 11px;
+      color: #c4c9dd; font-size: 10px;
+    }
+    .daily-legend span { display: inline-flex; align-items: center; gap: 5px; }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; background: #ffffff38; }
+    .legend-dot.done { background: #42e695; }
+    .legend-dot.today { background: #ffe77a; }
+    .legend-dot.buff { background: #bd82ff; }
+
     .shooter-canvas {
       display: block; width: 100%; height: auto; margin-top: 12px;
       border: 1px solid var(--border); border-radius: 16px;
@@ -145,15 +227,16 @@
       body { padding-right: 10px; padding-left: 10px; }
       .bottom-nav button span { font-size: 7px; }
       .tap-button { width: 205px; height: 205px; }
+      .daily-grid { gap: 5px; }
+      .daily-day { min-height: 62px; }
+      .daily-day-reward { font-size: 10px; }
     }
   </style>
 </head>
 
 <body>
 <main class="app">
-  <header class="header">
-    <h1>Ам Ням — кликер</h1>
-  </header>
+  <header class="header"><h1>Ам Ням — кликер</h1></header>
 
   <section class="page active" id="page-game">
     <div class="score-card">
@@ -209,11 +292,24 @@
 
   <section class="page" id="page-bonus">
     <h2 class="page-title">Ежедневный бонус 🎁</h2>
-    <p class="page-description">Заходи каждый день, чтобы забрать GM и временное усиление.</p>
-    <div class="panel">
+    <p class="page-description">Заходи каждый день: награды растут до 100-го дня!</p>
+    <div class="panel daily-panel">
+      <div class="daily-hero">
+        <div class="daily-kicker">Награда за вход</div>
+        <div class="daily-hero-title">Подарки Ам Няма</div>
+        <div class="daily-hero-copy">Забирай подарок каждый день и продвигайся по дорожке наград.</div>
+        <div class="daily-streak" id="dailyStreak">🔥 Серия: 0 дней</div>
+      </div>
       <div class="bonus-timer" id="bonusTimer"></div>
-      <div class="buff-box" id="dailyPreview"></div>
+      <div class="daily-feature" id="dailyPreview"></div>
       <button class="claim-button" id="claimBonus">Забрать подарок</button>
+      <div class="daily-section-title">Дорожка наград <span>до 100-го дня</span></div>
+      <div class="daily-grid" id="dailyTrack"></div>
+      <div class="daily-legend">
+        <span><i class="legend-dot done"></i> Получено</span>
+        <span><i class="legend-dot today"></i> Сегодня</span>
+        <span><i class="legend-dot buff"></i> Баф на 5 минут</span>
+      </div>
     </div>
   </section>
 
@@ -315,6 +411,10 @@
     minimumFractionDigits: 0,
     maximumFractionDigits: digits
   });
+  const fmtDailyGM = value => Number(value).toLocaleString("ru-RU", {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1
+  });
 
   function dateKey(date = new Date()) {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
@@ -394,12 +494,31 @@
   }
 
   const dailyBuffs = [
-    { type: "click", value: 1.5, name: "Доход кликов x1,5 · 5 минут" },
-    { type: "crit", value: 0.02, name: "+2% к шансу крита · 5 минут" },
-    { type: "regen", value: 2, name: "Восстановление энергии x2 · 5 минут" },
-    { type: "all", value: 1.2, name: "Все клики x1,2 · 5 минут" }
+    { type: "click", value: 1.5, name: "Доход кликов x1,5" },
+    { type: "crit", value: 0.02, name: "+2% к шансу крита" },
+    { type: "regen", value: 2, name: "Восстановление энергии x2" },
+    { type: "all", value: 1.2, name: "Все клики x1,2" }
   ];
-  function buffForDay(day) { return dailyBuffs[(day - 1) % dailyBuffs.length]; }
+
+  function dailyRewardForDay(day) {
+    if (day < 100 && day % 7 === 0) {
+      const buffIndex = (Math.floor(day / 7) - 1) % dailyBuffs.length;
+      return { type: "buff", buff: dailyBuffs[buffIndex] };
+    }
+    return { type: "gm", amount: day / 10 };
+  }
+
+  function dailyRewardLabel(day) {
+    const reward = dailyRewardForDay(day);
+    return reward.type === "buff" ? "БАФ" : `${fmtDailyGM(reward.amount)} GM`;
+  }
+
+  function dailyRewardDescription(day) {
+    const reward = dailyRewardForDay(day);
+    return reward.type === "buff"
+      ? `${reward.buff.name} · 5 минут`
+      : `+${fmtDailyGM(reward.amount)} GM`;
+  }
 
   function baseClick() {
     return 0.001 + game.accuracy * 0.0003 + game.metaClick * 0.01;
@@ -715,16 +834,20 @@
   function renderDaily() {
     const claimed = daily.lastClaimDate === dateKey();
     const day = claimed ? (daily.day || 1) : availableDailyDay();
-    const reward = (10 + day * 2) / 1000;
-    const buff = buffForDay(day);
+    const reward = dailyRewardForDay(day);
 
-    $("dailyPreview").innerHTML =
-      `<strong>Награда за день ${day}:</strong> +${fmt(reward)} GM и <strong>${buff.name}</strong>.`;
+    $("dailyStreak").textContent = `🔥 Серия: ${claimed ? day : Math.max(0, day - 1)} ${day === 1 ? "день" : "дней"}`;
+
+    $("dailyPreview").innerHTML = `
+      <div class="daily-feature-label">${claimed ? `Подарок за День ${day}` : `Сегодня · День ${day}`}</div>
+      <div class="daily-feature-reward">${dailyRewardLabel(day)}</div>
+      <div class="daily-feature-desc">${dailyRewardDescription(day)}</div>
+    `;
 
     $("claimBonus").disabled = claimed;
     $("claimBonus").textContent = claimed
       ? "Подарок уже получен сегодня"
-      : `Забрать: +${fmt(reward)} GM и бонус`;
+      : `Забрать подарок за День ${day}`;
 
     const now = new Date();
     const next = new Date(now);
@@ -734,20 +857,49 @@
     const minutes = String(Math.floor((secondsLeft % 3600) / 60)).padStart(2, "0");
     const seconds = String(secondsLeft % 60).padStart(2, "0");
     $("bonusTimer").textContent = claimed
-      ? `Следующий бонус через ${hours}:${minutes}:${seconds}`
-      : `Бонус доступен · новый день через ${hours}:${minutes}:${seconds}`;
+      ? `Следующий подарок через ${hours}:${minutes}:${seconds}`
+      : `Подарок доступен · новый день через ${hours}:${minutes}:${seconds}`;
+
+    const progressDay = claimed ? day : day - 1;
+    $("dailyTrack").innerHTML = Array.from({ length: 100 }, (_, index) => {
+      const itemDay = index + 1;
+      const itemReward = dailyRewardForDay(itemDay);
+      const done = itemDay <= progressDay;
+      const today = !claimed && itemDay === day;
+      const classes = [
+        "daily-day",
+        done ? "done" : "",
+        today ? "today" : "",
+        !done && !today ? "locked" : "",
+        itemReward.type === "buff" ? "buff-day" : ""
+      ].filter(Boolean).join(" ");
+
+      return `
+        <div class="${classes}">
+          <div class="daily-day-number">День ${itemDay}</div>
+          <div class="daily-day-reward">${dailyRewardLabel(itemDay)}</div>
+        </div>
+      `;
+    }).join("");
   }
 
   $("claimBonus").addEventListener("click", () => {
     if (daily.lastClaimDate === dateKey()) return;
 
     const day = availableDailyDay();
-    const reward = (10 + day * 2) / 1000;
-    const buff = buffForDay(day);
+    const reward = dailyRewardForDay(day);
 
-    game.score += reward;
-    game.totalEarned += reward;
-    applyBuff({ ...buff, duration: 5 * 60 * 1000 });
+    if (reward.type === "gm") {
+      game.score += reward.amount;
+      game.totalEarned += reward.amount;
+    } else {
+      applyBuff({
+        ...reward.buff,
+        name: `${reward.buff.name} · 5 минут`,
+        duration: 5 * 60 * 1000
+      });
+    }
+
     daily.day = day;
     daily.lastClaimDate = dateKey();
 
@@ -755,7 +907,10 @@
     saveGame();
     renderAll();
     playReward();
-    showMessage(`Получено: +${fmt(reward)} GM и бонус «${buff.name}».`);
+
+    showMessage(reward.type === "gm"
+      ? `Получено: +${fmtDailyGM(reward.amount)} GM за День ${day}!`
+      : `Получен баф «${reward.buff.name}» на 5 минут!`);
   });
 
   function renderAchievement() {
@@ -814,9 +969,7 @@
         </div>
         <div class="shop-desc">${item.desc}</div>
         <button class="buy-button" data-shop-item="${item.id}"
-          ${game.score < item.price ? "disabled" : ""}>
-          Купить
-        </button>
+          ${game.score < item.price ? "disabled" : ""}>Купить</button>
       </article>
     `).join("");
 
@@ -843,9 +996,7 @@
       game.energy = MAX_ENERGY;
     } else if (id === "clickBoost") {
       applyBuff({
-        type: "click",
-        value: 2,
-        duration: 5 * 60 * 1000,
+        type: "click", value: 2, duration: 5 * 60 * 1000,
         name: "Доход кликов x2 · 5 минут"
       });
     }
@@ -983,7 +1134,6 @@
       ctx.fillStyle = balloon.color;
       ctx.arc(balloon.x, balloon.y, balloon.radius, 0, Math.PI * 2);
       ctx.fill();
-
       ctx.beginPath();
       ctx.moveTo(balloon.x, balloon.y + balloon.radius);
       ctx.lineTo(balloon.x, balloon.y + balloon.radius + 17);
@@ -1079,9 +1229,7 @@
       });
     }
 
-    shooterBalloons.forEach(balloon => {
-      balloon.y -= balloon.speed * dt;
-    });
+    shooterBalloons.forEach(balloon => { balloon.y -= balloon.speed * dt; });
     shooterBullets.forEach(bullet => {
       bullet.x += bullet.vx * dt;
       bullet.y += bullet.vy * dt;
@@ -1106,9 +1254,7 @@
 
       if (!hit && (
         bullet.y < -10 || bullet.x < -10 || bullet.x > shooterCanvas.width + 10
-      )) {
-        shooterBullets.splice(b, 1);
-      }
+      )) shooterBullets.splice(b, 1);
     }
 
     shooterBalloons = shooterBalloons.filter(balloon =>
@@ -1126,7 +1272,6 @@
       finishShooter(false);
       return;
     }
-
     shooterFrame = requestAnimationFrame(shooterLoop);
   }
 
@@ -1168,10 +1313,8 @@
     const speed = 620;
 
     shooterBullets.push({
-      x: startX,
-      y: startY,
-      vx: dx / length * speed,
-      vy: dy / length * speed
+      x: startX, y: startY,
+      vx: dx / length * speed, vy: dy / length * speed
     });
   });
 
@@ -1236,9 +1379,7 @@
       game.energy = Math.min(MAX_ENERGY, game.energy + elapsed * ENERGY_REGEN_PER_SECOND * regen);
     }
 
-    if (game.buff && now >= game.buff.expiresAt) {
-      game.buff = null;
-    }
+    if (game.buff && now >= game.buff.expiresAt) game.buff = null;
 
     game.lastTime = now;
     saveGame();
@@ -1253,4 +1394,3 @@
 </script>
 </body>
 </html>
-```
