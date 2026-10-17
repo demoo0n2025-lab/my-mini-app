@@ -1,3 +1,4 @@
+```html
 <!doctype html>
 <html lang="ru">
 <head>
@@ -32,7 +33,6 @@
     }
 
     button { color: inherit; font: inherit; }
-
     .app { width: min(100%, 520px); margin: 0 auto; }
 
     .header {
@@ -79,29 +79,74 @@
       overflow-wrap: anywhere;
     }
 
+    /* Ам Ням — персонаж, а не монетка */
     .coin-button {
+      position: relative;
       display: grid;
-      width: 230px;
-      height: 230px;
-      margin: 26px auto;
+      width: 270px;
+      height: 270px;
+      margin: 18px auto;
       place-items: center;
       border: 0;
       border-radius: 50%;
-      background: radial-gradient(circle at 35% 28%, #d9ff80, #6edb47 65%, #36a832);
-      box-shadow: 0 12px 0 #277d2c, 0 20px 45px #0005;
+      background:
+        radial-gradient(circle, #ffffff16 0 42%, transparent 43%),
+        radial-gradient(circle at 50% 55%, #6f57e8 0, #393078 52%, #25234f 72%, transparent 73%);
+      box-shadow: 0 18px 50px #090b2180;
       cursor: pointer;
       user-select: none;
       touch-action: manipulation;
-      transition: transform .08s, box-shadow .08s;
+      -webkit-tap-highlight-color: transparent;
+      animation: omnom-float 3s ease-in-out infinite;
     }
 
-    .coin-button:active {
-      transform: translateY(8px) scale(.97);
-      box-shadow: 0 4px 0 #277d2c, 0 12px 28px #0005;
+    .coin-button::before {
+      position: absolute;
+      inset: 19px;
+      border: 2px solid #ffffff26;
+      border-radius: 50%;
+      content: "";
+      box-shadow: inset 0 0 28px #b8a5ff20, 0 0 32px #9d81ff24;
     }
 
-    .coin-button:disabled { cursor: not-allowed; filter: grayscale(.6); opacity: .65; }
-    .omnom { width: 150px; height: 150px; overflow: visible; }
+    .coin-button::after {
+      position: absolute;
+      top: 28px;
+      right: 48px;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: #fff9c9;
+      content: "";
+      box-shadow: 0 0 18px 7px #fff9c966;
+      animation: sparkle 1.8s ease-in-out infinite;
+    }
+
+    .coin-button:active { transform: scale(.94); animation-play-state: paused; }
+    .coin-button:disabled { cursor: not-allowed; filter: grayscale(.5); opacity: .65; }
+
+    .omnom {
+      position: relative;
+      z-index: 1;
+      width: 205px;
+      height: 205px;
+      overflow: visible;
+      filter: drop-shadow(0 14px 9px #10132877);
+      transition: transform .16s ease;
+    }
+
+    .coin-button:active .omnom { transform: scale(.94) rotate(-4deg); }
+
+    @keyframes omnom-float {
+      0%, 100% { transform: translateY(0) rotate(-1deg); }
+      50% { transform: translateY(-8px) rotate(1deg); }
+    }
+
+    @keyframes sparkle {
+      0%, 100% { opacity: .5; transform: scale(.8); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
     .energy-card { padding: 16px; }
 
     .energy-row {
@@ -113,7 +158,7 @@
     .energy-label { color: var(--muted); font-size: 14px; }
     .bar { height: 12px; overflow: hidden; border-radius: 99px; background: #ffffff20; }
 
-    #energyBar {
+    #energyBar, #achievementBar {
       width: 100%;
       height: 100%;
       border-radius: inherit;
@@ -129,6 +174,18 @@
       text-align: center;
     }
 
+    .active-boosts {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border: 1px solid #bca9ff35;
+      border-radius: 14px;
+      color: #e6ddff;
+      background: linear-gradient(135deg, #8468ff20, #36d6a316);
+      font-size: 13px;
+      line-height: 1.5;
+      text-align: center;
+    }
+
     .page-title { margin: 8px 0 6px; font-size: 23px; }
     .page-description { margin: 0 0 18px; color: var(--muted); line-height: 1.45; }
     .panel { padding: 16px; }
@@ -140,7 +197,6 @@
     }
 
     .upgrade-list { display: grid; gap: 10px; }
-
     .upgrade-card { padding: 14px; }
     .upgrade-top { display: flex; justify-content: space-between; gap: 12px; }
     .upgrade-name { font-weight: 700; line-height: 1.35; }
@@ -156,6 +212,7 @@
     }
 
     .requirement { color: var(--muted); font-size: 12px; }
+
     .buy-button, .action-button, .claim-button {
       padding: 10px 13px;
       border: 0;
@@ -173,6 +230,7 @@
     }
 
     .action-button { width: 100%; margin-top: 10px; }
+
     .claim-button {
       width: 100%;
       margin-top: 14px;
@@ -285,14 +343,30 @@
       box-shadow: 0 16px 48px #0008;
     }
 
-    .settings-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .settings-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
     .settings-head h2 { margin: 0; font-size: 20px; }
-    .setting-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 15px 0; border-bottom: 1px solid var(--border); }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 15px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
     .setting-row:last-child { border-bottom: 0; }
     .setting-label { font-weight: 700; }
     .setting-note { margin-top: 4px; color: var(--muted); font-size: 12px; }
 
     .switch {
+      position: relative;
       width: 50px;
       height: 30px;
       flex: 0 0 auto;
@@ -301,7 +375,6 @@
       border-radius: 99px;
       background: #626982;
       cursor: pointer;
-      position: relative;
     }
 
     .switch::after {
@@ -318,16 +391,6 @@
 
     .switch:checked { background: #42c88b; }
     .switch:checked::after { transform: translateX(20px); }
-
-    .flying-omnom {
-      position: fixed;
-      z-index: 50;
-      width: 42px;
-      height: 42px;
-      pointer-events: none;
-      will-change: transform, opacity;
-      transition: transform 650ms cubic-bezier(.2,.8,.25,1), opacity 650ms ease;
-    }
 
     .tap-number {
       position: fixed;
@@ -347,13 +410,16 @@
 
     @media (max-width: 360px) {
       body { padding-right: 12px; padding-left: 12px; }
-      .coin-button { width: 210px; height: 210px; }
-      .omnom { width: 138px; height: 138px; }
+      .coin-button { width: 230px; height: 230px; }
+      .omnom { width: 175px; height: 175px; }
       .bottom-nav button span { font-size: 8px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+      }
     }
   </style>
 </head>
@@ -373,18 +439,23 @@
     </div>
 
     <button class="coin-button" id="tapButton" aria-label="Нажать на Ам Няма">
-      <svg class="omnom" viewBox="0 0 160 160" role="img" aria-label="Ам Ням">
-        <path d="M26 65 Q16 37 35 24 Q48 15 62 35 Q79 22 96 34 Q116 17 130 32 Q144 48 132 69 Q146 105 120 130 Q102 149 72 140 Q36 144 23 115 Q12 91 26 65Z" fill="#58c943" stroke="#267d2c" stroke-width="6"/>
-        <path d="M36 76 Q47 60 60 76" fill="none" stroke="#205d29" stroke-width="6" stroke-linecap="round"/>
-        <path d="M89 76 Q102 60 115 76" fill="none" stroke="#205d29" stroke-width="6" stroke-linecap="round"/>
-        <ellipse cx="49" cy="64" rx="8" ry="11" fill="#fff"/>
-        <ellipse cx="104" cy="64" rx="8" ry="11" fill="#fff"/>
-        <circle cx="52" cy="67" r="4" fill="#172318"/>
-        <circle cx="101" cy="67" r="4" fill="#172318"/>
-        <path d="M59 100 Q80 119 103 99" fill="none" stroke="#174d22" stroke-width="6" stroke-linecap="round"/>
-        <path d="M65 103 Q81 111 98 103" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-        <path d="M38 88 Q28 94 40 99" fill="none" stroke="#83e85a" stroke-width="5" stroke-linecap="round"/>
-        <path d="M122 87 Q133 92 122 99" fill="none" stroke="#83e85a" stroke-width="5" stroke-linecap="round"/>
+      <svg class="omnom" viewBox="0 0 200 200" role="img" aria-label="Весёлый Ам Ням">
+        <path d="M39 67C24 42 35 24 53 31c10 4 13 13 17 22 12-10 27-13 42-7 8-13 23-21 34-12 12 10 4 27-2 37 13 27 9 65-14 83-19 15-47 16-67 4-24 2-43-12-48-34-5-20 3-41 24-57Z"
+              fill="#70e34b" stroke="#278a35" stroke-width="7" stroke-linejoin="round"/>
+        <path d="M49 47c-3-8-1-13 4-13 5 0 8 7 10 15M132 43c5-8 11-11 15-7 4 5 0 12-5 18"
+              fill="none" stroke="#a9ff73" stroke-width="6" stroke-linecap="round"/>
+        <ellipse cx="69" cy="84" rx="17" ry="21" fill="#fff"/>
+        <ellipse cx="128" cy="82" rx="17" ry="21" fill="#fff"/>
+        <ellipse cx="74" cy="89" rx="7" ry="10" fill="#193322"/>
+        <ellipse cx="123" cy="87" rx="7" ry="10" fill="#193322"/>
+        <circle cx="76" cy="85" r="2.5" fill="#fff"/>
+        <circle cx="125" cy="83" r="2.5" fill="#fff"/>
+        <ellipse cx="48" cy="111" rx="9" ry="6" fill="#ff9e9e" opacity=".8"/>
+        <ellipse cx="147" cy="109" rx="9" ry="6" fill="#ff9e9e" opacity=".8"/>
+        <path d="M68 119c17 23 43 25 62-1" fill="#174d2d" stroke="#174d2d" stroke-width="7" stroke-linecap="round"/>
+        <path d="M79 127c11 7 23 8 34 1" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+        <path d="M95 137c5-2 11-1 15 2-4 8-12 11-19 7-3-3-1-7 4-9Z" fill="#ff7892"/>
+        <path d="M45 99c-5 1-9 4-11 8M153 97c5 1 8 4 10 8" fill="none" stroke="#278a35" stroke-width="4" stroke-linecap="round"/>
       </svg>
     </button>
 
@@ -395,32 +466,32 @@
       </div>
       <div class="bar"><div id="energyBar"></div></div>
     </section>
+
+    <div class="active-boosts" id="activeBoosts">Пока нет активных усилений</div>
     <p class="hint" id="gameHint">Нажимай на Ам Няма, чтобы заработать!</p>
   </section>
 
   <section class="page" id="page-upgrades">
     <h2 class="page-title">Улучшения и механики</h2>
-    <p class="page-description">Покупай улучшения за GM, а постоянные бонусы — за KF.</p>
+    <p class="page-description">Покупай улучшения за GM и усиливай клики.</p>
     <div class="panel">
       <div class="profile-stat"><span class="muted">Баланс</span><strong id="upgradeBalance">0 GM</strong></div>
-      <div class="profile-stat"><span class="muted">Кристаллы Фокуса</span><strong id="upgradeKF">0 KF</strong></div>
       <div id="upgradeLists"></div>
     </div>
   </section>
 
   <section class="page" id="page-bonus">
     <h2 class="page-title">Ежедневный бонус 🎁</h2>
-    <p class="page-description">Заходи каждый день и забирай подарок.</p>
+    <p class="page-description">Забирай временные усиления — каждое действует 10 минут.</p>
     <div class="panel">
       <div class="bonus-timer" id="bonusTimer"></div>
       <div class="daily-grid" id="dailyGrid"></div>
-      <button class="claim-button" id="claimBonus">Забрать подарок</button>
+      <button class="claim-button" id="claimBonus">Забрать усиление</button>
     </div>
   </section>
 
   <section class="page" id="page-tasks">
     <h2 class="page-title">Задания и достижения</h2>
-
     <div class="panel">
       <h3 style="margin-top:0">Ежедневный вызов: «Марафон кликов»</h3>
       <p class="muted" id="challengeText">Нажми кнопку, чтобы начать испытание.</p>
@@ -442,9 +513,9 @@
       <div class="profile-stat"><span class="muted">Баланс</span><strong id="profileScore">0 GM</strong></div>
       <div class="profile-stat"><span class="muted">Всего нажатий</span><strong id="profileTaps">0</strong></div>
       <div class="profile-stat"><span class="muted">Критические клики</span><strong id="profileCrits">0</strong></div>
-      <div class="profile-stat"><span class="muted">Заработано за забег</span><strong id="profileEarned">0 GM</strong></div>
+      <div class="profile-stat"><span class="muted">Заработано всего</span><strong id="profileEarned">0 GM</strong></div>
       <div class="profile-stat"><span class="muted">Серия входов</span><strong id="profileStreak">0 дней</strong></div>
-      <div class="profile-stat"><span class="muted">Активные способности</span><strong id="profileAbilities">Нет</strong></div>
+      <div class="profile-stat"><span class="muted">Активные усиления</span><strong id="profileAbilities">Нет</strong></div>
     </div>
   </section>
 </main>
@@ -488,20 +559,20 @@
   tg?.ready();
   tg?.expand();
 
-  // Стоимости, награды и числовые пороги из исходной таблицы уменьшены в 1000 раз.
   const SCALE = 1000;
   const MAX_ENERGY = 100;
   const ENERGY_REGEN_PER_SECOND = 1;
-  const PRESTIGE_THRESHOLD = 1000000 / SCALE; // 1000 GM за забег
-  const CHALLENGE_CLICKS = 1000 / SCALE;      // 1 клик за 60 секунд
-  const ACHIEVEMENT_CRITS = 10000 / SCALE;   // 10 критических кликов
+  const CHALLENGE_CLICKS = 1;
+  const ACHIEVEMENT_CRITS = 10;
+  const BOOST_DURATION = 10 * 60 * 1000;
 
   const GAME_KEY = "omnomClickerGameV2";
   const DAILY_KEY = "omnomClickerDailyV2";
   const MUSIC_KEY = "omnomClickerMusic";
   const SOUND_KEY = "omnomClickerSound";
 
-  const $ = (id) => document.getElementById(id);
+  const $ = id => document.getElementById(id);
+
   const fmt = (n, digits = 3) => Number(n || 0).toLocaleString("ru-RU", {
     minimumFractionDigits: 0,
     maximumFractionDigits: digits
@@ -532,19 +603,11 @@
       critPowerLevel: 0,
       researchDepth: false,
       researchSuper: false,
-      doubleUnlocked: false,
       focusUnlocked: false,
-      doubleUntil: 0,
-      doubleCooldownUntil: 0,
       focusUntil: 0,
       focusCooldownUntil: 0,
-      kf: 0,
-      metaClick: 0,
-      metaDuration: 0,
-      metaMemory: 0,
-      prestigeCount: 0,
-      achievementClaimed: false,
-      achievementBonusChance: 0
+      boosts: [],
+      achievementClaimed: false
     };
   }
 
@@ -554,16 +617,24 @@
       if (!saved || typeof saved !== "object") return freshGame();
 
       const g = { ...freshGame(), ...saved };
+
+      // Удаляем поля старой версии: KF и престиж больше не используются.
+      for (const key of ["kf", "metaClick", "metaDuration", "metaMemory", "prestigeCount"]) {
+        delete g[key];
+      }
+
       const elapsed = Math.max(0, (Date.now() - Number(g.lastTime || Date.now())) / 1000);
       g.energy = Math.min(MAX_ENERGY, Math.max(0, Number(g.energy) || 0) +
         Math.floor(elapsed * ENERGY_REGEN_PER_SECOND));
 
       [
         "score", "totalEarned", "taps", "crits", "lifetimeCrits",
-        "accuracy", "energyClick", "magnet", "critChanceLevel",
-        "critPowerLevel", "kf", "metaClick", "metaDuration",
-        "metaMemory", "prestigeCount", "achievementBonusChance"
+        "accuracy", "energyClick", "magnet", "critChanceLevel", "critPowerLevel"
       ].forEach(key => g[key] = Math.max(0, Number(g[key]) || 0));
+
+      g.boosts = Array.isArray(g.boosts)
+        ? g.boosts.filter(b => b && Number(b.until) > Date.now())
+        : [];
 
       g.lastTime = Date.now();
       return g;
@@ -606,38 +677,80 @@
     return 1;
   }
 
-  const dailyRewards = [10, 20, 30, 40, 50, 75, 100].map(x => x / SCALE);
+  const dailyRewards = [
+    { type: "turbo", label: "x1,5 доход", icon: "🚀" },
+    { type: "fortune", label: "+25% доход", icon: "✨" },
+    { type: "focus", label: "Сильные криты", icon: "🎯" },
+    { type: "double", label: "x2 доход", icon: "⚡" },
+    { type: "turbo", label: "x1,5 доход", icon: "🚀" },
+    { type: "focus", label: "Сильные криты", icon: "🎯" },
+    { type: "double", label: "x2 доход", icon: "⚡" }
+  ];
+
+  function activeBoosts() {
+    game.boosts = (game.boosts || []).filter(boost => boost.until > Date.now());
+    return game.boosts;
+  }
+
+  function activateBoost(type) {
+    const now = Date.now();
+    const existing = activeBoosts().find(boost => boost.type === type);
+
+    if (existing) existing.until = Math.max(now, existing.until) + BOOST_DURATION;
+    else game.boosts.push({ type, until: now + BOOST_DURATION });
+  }
+
+  function boostName(type) {
+    return ({
+      double: "x2 доход",
+      turbo: "x1,5 доход",
+      fortune: "+25% доход",
+      focus: "Усиленные криты"
+    })[type] || "Усиление";
+  }
 
   function baseClickValue() {
-    return 1 / SCALE + game.accuracy / SCALE + game.metaClick * (5 / SCALE);
+    return 1 / SCALE + game.accuracy / SCALE;
   }
 
   function clickMultiplier() {
     const energyMultiplier = game.energyClick > 0
       ? 1.02 + (game.energyClick - 1) * 0.01
       : 1;
+
     const magnetMultiplier = game.magnet > 0
       ? 1 + 0.05 + (game.magnet - 1) * 0.02
       : 1;
+
     const researchMultiplier = game.researchDepth ? 1.25 : 1;
-    const doubleMultiplier = Date.now() < game.doubleUntil ? 2 : 1;
-    return energyMultiplier * magnetMultiplier * researchMultiplier * doubleMultiplier;
+    let boostMultiplier = 1;
+
+    for (const boost of activeBoosts()) {
+      if (boost.type === "double") boostMultiplier *= 2;
+      if (boost.type === "turbo") boostMultiplier *= 1.5;
+      if (boost.type === "fortune") boostMultiplier *= 1.25;
+    }
+
+    return energyMultiplier * magnetMultiplier * researchMultiplier * boostMultiplier;
   }
 
   function getCritChance() {
     const levelBonus = game.critChanceLevel > 0
       ? 0.01 + (game.critChanceLevel - 1) * 0.005
       : 0;
-    const focusBonus = Date.now() < game.focusUntil ? 0.10 : 0;
-    return Math.min(0.95, 0.01 + levelBonus + game.achievementBonusChance + focusBonus);
+
+    const focusBoost = activeBoosts().some(b => b.type === "focus");
+    const focusBonus = (Date.now() < game.focusUntil || focusBoost) ? 0.10 : 0;
+    return Math.min(0.95, 0.01 + levelBonus + focusBonus);
   }
 
   function getCritMultiplier() {
     let mult = game.critPowerLevel > 0
       ? 2 + (game.critPowerLevel - 1) * 0.2
       : 1.5;
+
     if (game.researchSuper) mult += 0.5;
-    if (Date.now() < game.focusUntil) mult *= 1.5;
+    if (Date.now() < game.focusUntil || activeBoosts().some(b => b.type === "focus")) mult *= 1.5;
     return mult;
   }
 
@@ -646,39 +759,11 @@
     return isCrit ? result * getCritMultiplier() : result;
   }
 
-  function omNomSvg() {
-    return `<svg viewBox="0 0 160 160" aria-hidden="true">
-      <path d="M26 65 Q16 37 35 24 Q48 15 62 35 Q79 22 96 34 Q116 17 130 32 Q144 48 132 69 Q146 105 120 130 Q102 149 72 140 Q36 144 23 115 Q12 91 26 65Z" fill="#58c943" stroke="#267d2c" stroke-width="6"/>
-      <path d="M36 76 Q47 60 60 76 M89 76 Q102 60 115 76" fill="none" stroke="#205d29" stroke-width="6" stroke-linecap="round"/>
-      <ellipse cx="49" cy="64" rx="8" ry="11" fill="#fff"/><ellipse cx="104" cy="64" rx="8" ry="11" fill="#fff"/>
-      <circle cx="52" cy="67" r="4" fill="#172318"/><circle cx="101" cy="67" r="4" fill="#172318"/>
-      <path d="M59 100 Q80 119 103 99 M65 103 Q81 111 98 103" fill="none" stroke="#174d22" stroke-width="6" stroke-linecap="round"/>
-    </svg>`;
-  }
-
   function animateOmNom(amount) {
     const button = $("tapButton");
     const b = button.getBoundingClientRect();
-    const s = $("score").getBoundingClientRect();
-    const angle = Math.random() * Math.PI * 2;
-    const radius = Math.sqrt(Math.random()) * b.width * 0.32;
-    const x = b.left + b.width / 2 + Math.cos(angle) * radius;
-    const y = b.top + b.height / 2 + Math.sin(angle) * radius;
-    const endX = s.left + s.width / 2;
-    const endY = s.top + s.height / 2;
-
-    const flying = document.createElement("span");
-    flying.className = "flying-omnom";
-    flying.innerHTML = omNomSvg();
-    flying.style.left = `${x - 21}px`;
-    flying.style.top = `${y - 21}px`;
-    document.body.appendChild(flying);
-
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      flying.style.transform = `translate(${endX - x}px, ${endY - y}px) scale(.25) rotate(360deg)`;
-      flying.style.opacity = "0";
-    }));
-    setTimeout(() => flying.remove(), 750);
+    const x = b.left + b.width / 2 + (Math.random() - 0.5) * b.width * 0.45;
+    const y = b.top + b.height / 2 + (Math.random() - 0.5) * b.height * 0.35;
 
     const number = document.createElement("span");
     number.className = "tap-number";
@@ -706,6 +791,7 @@
   function tone(freq, duration = .12, volume = .035, type = "sine") {
     const ctx = getAudio();
     if (!ctx) return;
+
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.type = type;
@@ -721,10 +807,12 @@
   function startMusic() {
     if (!musicEnabled || musicTimer) return;
     const notes = [261.63, 329.63, 392, 329.63, 293.66, 349.23, 440, 349.23];
+
     const play = () => {
       if (!musicEnabled) return;
       tone(notes[musicIndex++ % notes.length], .42, .018);
     };
+
     play();
     musicTimer = setInterval(play, 520);
   }
@@ -748,6 +836,7 @@
     $("score").textContent = fmt(game.score);
     $("clickValue").textContent =
       `За клик: примерно ${fmt(getTapValue(false))} GM · шанс крита ${fmt(getCritChance() * 100, 2)}%`;
+
     $("energyText").textContent = `${Math.floor(game.energy)} / ${MAX_ENERGY}`;
     $("energyBar").style.width = `${Math.max(0, game.energy / MAX_ENERGY * 100)}%`;
     $("tapButton").disabled = game.energy < 1;
@@ -755,16 +844,21 @@
       ? "Энергия закончилась — она постепенно восстановится."
       : "Нажимай на Ам Няма, чтобы заработать!";
 
+    const boosts = activeBoosts();
+    $("activeBoosts").textContent = boosts.length
+      ? boosts.map(b => {
+          const seconds = Math.ceil((b.until - Date.now()) / 1000);
+          const time = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+          return `${boostName(b.type)} — ${time}`;
+        }).join(" · ")
+      : "Пока нет активных усилений";
+
     $("profileScore").textContent = `${fmt(game.score)} GM`;
     $("profileTaps").textContent = game.taps.toLocaleString("ru-RU");
     $("profileCrits").textContent = game.lifetimeCrits.toLocaleString("ru-RU");
     $("profileEarned").textContent = `${fmt(game.totalEarned)} GM`;
     $("profileStreak").textContent = `${daily.streak} ${daily.streak === 1 ? "день" : "дней"}`;
-
-    const abilities = [];
-    if (Date.now() < game.doubleUntil) abilities.push(`Двойной клик: ${Math.ceil((game.doubleUntil - Date.now()) / 1000)}с`);
-    if (Date.now() < game.focusUntil) abilities.push(`Фокусировка: ${Math.ceil((game.focusUntil - Date.now()) / 1000)}с`);
-    $("profileAbilities").textContent = abilities.join(" · ") || "Нет";
+    $("profileAbilities").textContent = boosts.map(b => boostName(b.type)).join(", ") || "Нет";
   }
 
   function upgradeData() {
@@ -772,117 +866,133 @@
       {
         section: "I. Основной клик",
         items: [
-          { id: "accuracy", name: "Точность Пальца", desc: "Увеличивает базовый доход за каждый клик. +0,001 GM за уровень после уменьшения масштаба.",
-            level: game.accuracy, max: 100, currency: "GM", base: 100 / SCALE, growth: 1.15,
+          {
+            id: "accuracy",
+            name: "Точность пальца",
+            desc: "Увеличивает базовый доход за каждый клик.",
+            level: game.accuracy,
+            max: 100,
+            currency: "GM",
             cost: l => (100 / SCALE) * Math.pow(1.15, l),
             effect: `Сейчас +${fmt(game.accuracy / SCALE)} GM к базовому клику`,
-            buy: () => game.accuracy++ },
-          { id: "energyClick", name: "Энергия Кликов", desc: "Увеличивает множитель дохода от кликов.",
-            level: game.energyClick, max: 50, currency: "GM", cost: l => (500 / SCALE) * Math.pow(1.2, l),
+            buy: () => game.accuracy++
+          },
+          {
+            id: "energyClick",
+            name: "Энергия кликов",
+            desc: "Увеличивает множитель дохода от кликов.",
+            level: game.energyClick,
+            max: 50,
+            currency: "GM",
+            cost: l => (500 / SCALE) * Math.pow(1.2, l),
             effect: `Текущий бонус: +${fmt(game.energyClick ? 2 + (game.energyClick - 1) : 0, 1)}% к кликам`,
-            requirement: "Точность Пальца ур. 5", unlocked: game.accuracy >= 5,
-            buy: () => game.energyClick++ },
-          { id: "double", name: "Двойной Клик · способность", desc: "Удваивает доход от кликов на 10 секунд. Перезарядка: 45 секунд.",
-            special: true, currency: "GM", cost: 1500 / SCALE,
-            unlocked: game.doubleUnlocked || true,
-            buttonText: !game.doubleUnlocked ? "Открыть" :
-              (Date.now() < game.doubleUntil ? `Активно · ${Math.ceil((game.doubleUntil-Date.now())/1000)}с` :
-              Date.now() < game.doubleCooldownUntil ? `Перезарядка · ${Math.ceil((game.doubleCooldownUntil-Date.now())/1000)}с` : "Активировать"),
-            canBuy: !game.doubleUnlocked || (Date.now() >= game.doubleCooldownUntil && Date.now() >= game.doubleUntil),
+            requirement: "Точность пальца ур. 5",
+            unlocked: game.accuracy >= 5,
+            buy: () => game.energyClick++
+          },
+          {
+            id: "focus",
+            name: "Фокусировка",
+            desc: "Усиливает шанс и силу критического клика на 10 минут. Перезарядка — 90 секунд.",
+            special: true,
+            currency: "GM",
+            cost: 5000 / SCALE,
+            buttonText: !game.focusUnlocked ? "Открыть" :
+              (Date.now() < game.focusUntil
+                ? `Активно · ${Math.ceil((game.focusUntil - Date.now()) / 1000)}с`
+                : Date.now() < game.focusCooldownUntil
+                  ? `Перезарядка · ${Math.ceil((game.focusCooldownUntil - Date.now()) / 1000)}с`
+                  : "Активировать"),
+            requirement: "Точность пальца ур. 20",
+            unlocked: game.accuracy >= 20 || game.focusUnlocked,
+            canBuy: !game.focusUnlocked ||
+              (Date.now() >= game.focusCooldownUntil && Date.now() >= game.focusUntil),
             buy: () => {
-              if (!game.doubleUnlocked) game.doubleUnlocked = true;
-              else { game.doubleUntil = Date.now() + 10000; game.doubleCooldownUntil = Date.now() + 45000; }
-            }},
-          { id: "metaClick", name: "Неутомимость · постоянный бонус", desc: "Сохраняется после перерождения и постоянно усиливает базовый клик.",
-            level: game.metaClick, max: 100, currency: "KF", cost: l => (1 / SCALE) * Math.pow(1.5, l),
-            effect: `Постоянно +${fmt(game.metaClick * (5 / SCALE))} GM к базовому клику`,
-            requirement: "Нужно хотя бы одно перерождение", unlocked: game.prestigeCount > 0,
-            buy: () => game.metaClick++ }
+              if (!game.focusUnlocked) game.focusUnlocked = true;
+              else {
+                game.focusUntil = Date.now() + BOOST_DURATION;
+                game.focusCooldownUntil = Date.now() + 90000;
+              }
+            }
+          }
         ]
       },
       {
         section: "II. Множители кликов",
         items: [
-          { id: "magnet", name: "Магнетизм Золота", desc: "Увеличивает эффективность бонусов к кликам.",
-            level: game.magnet, max: 20, currency: "GM", cost: l => (10000 / SCALE) * Math.pow(1.5, l),
-            effect: `Множитель улучшения: +${fmt(game.magnet ? 5 + (game.magnet - 1) * 2 : 0, 1)}%`,
-            requirement: "Энергия Кликов ур. 10", unlocked: game.energyClick >= 10,
-            buy: () => game.magnet++ },
-          { id: "focus", name: "Фокусировка · способность", desc: "На 15 секунд добавляет +10% к шансу крита и +50% к урону крита. Перезарядка: 90 секунд.",
-            special: true, currency: "GM", cost: 5000 / SCALE,
-            unlocked: game.focusUnlocked || game.accuracy >= 20,
-            buttonText: !game.focusUnlocked ? "Открыть" :
-              (Date.now() < game.focusUntil ? `Активно · ${Math.ceil((game.focusUntil-Date.now())/1000)}с` :
-              Date.now() < game.focusCooldownUntil ? `Перезарядка · ${Math.ceil((game.focusCooldownUntil-Date.now())/1000)}с` : "Активировать"),
-            requirement: "Точность Пальца ур. 20",
-            canBuy: game.accuracy >= 20 && (!game.focusUnlocked ||
-              (Date.now() >= game.focusCooldownUntil && Date.now() >= game.focusUntil)),
-            buy: () => {
-              if (!game.focusUnlocked) game.focusUnlocked = true;
-              else { game.focusUntil = Date.now() + 15000; game.focusCooldownUntil = Date.now() + 90000; }
-            }},
-          { id: "metaDuration", name: "Поток Сознания · постоянный бонус", desc: "Увеличивает длительность активных способностей клика на 15% за уровень.",
-            level: game.metaDuration, max: 100, currency: "KF", cost: l => (5 / SCALE) * Math.pow(1.5, l),
-            effect: `Бонус к длительности: +${game.metaDuration * 15}%`,
-            requirement: "Нужно хотя бы одно перерождение", unlocked: game.prestigeCount > 0,
-            buy: () => game.metaDuration++ }
-        ]
-      },
-      {
-        section: "III. Критические клики",
-        items: [
-          { id: "critChance", name: "Шанс крит. клика", desc: "Увеличивает базовый шанс критического клика.",
-            level: game.critChanceLevel, max: 10, currency: "GM", cost: l => (2500 / SCALE) * Math.pow(1.3, l),
-            effect: `Шанс от улучшения: +${fmt(game.critChanceLevel ? 1 + (game.critChanceLevel - 1) * .5 : 0, 1)}%`,
-            buy: () => game.critChanceLevel++ },
-          { id: "critPower", name: "Сила крит. клика", desc: "Увеличивает множитель дохода от критического клика.",
-            level: game.critPowerLevel, max: 10, currency: "GM", cost: l => (7500 / SCALE) * Math.pow(1.4, l),
+          {
+            id: "magnet",
+            name: "Магнетизм золота",
+            desc: "Увеличивает доход от кликов.",
+            level: game.magnet,
+            max: 20,
+            currency: "GM",
+            cost: l => (10000 / SCALE) * Math.pow(1.5, l),
+            effect: `Бонус множителя: +${fmt(game.magnet ? 5 + (game.magnet - 1) * 2 : 0, 1)}%`,
+            requirement: "Энергия кликов ур. 10",
+            unlocked: game.energyClick >= 10,
+            buy: () => game.magnet++
+          },
+          {
+            id: "critChance",
+            name: "Шанс критического клика",
+            desc: "Увеличивает базовый шанс критического клика.",
+            level: game.critChanceLevel,
+            max: 10,
+            currency: "GM",
+            cost: l => (2500 / SCALE) * Math.pow(1.3, l),
+            effect: `Бонус шанса: +${fmt(game.critChanceLevel ? 1 + (game.critChanceLevel - 1) * .5 : 0, 1)}%`,
+            buy: () => game.critChanceLevel++
+          },
+          {
+            id: "critPower",
+            name: "Сила критического клика",
+            desc: "Увеличивает множитель дохода от критического клика.",
+            level: game.critPowerLevel,
+            max: 10,
+            currency: "GM",
+            cost: l => (7500 / SCALE) * Math.pow(1.4, l),
             effect: `Множитель крита: x${fmt(game.critPowerLevel ? 2 + (game.critPowerLevel - 1) * .2 : 1.5, 1)}`,
-            requirement: "Шанс крит. клика ур. 5", unlocked: game.critChanceLevel >= 5,
-            buy: () => game.critPowerLevel++ }
+            requirement: "Шанс критического клика ур. 5",
+            unlocked: game.critChanceLevel >= 5,
+            buy: () => game.critPowerLevel++
+          }
         ]
       },
       {
-        section: "IV. Престиж",
+        section: "III. Исследования",
         items: [
-          { id: "prestige", name: "Реинкарнация Фокуса", desc: `Сбросит прогресс текущего забега и выдаст KF. За каждые ${fmt(PRESTIGE_THRESHOLD)} GM заработка — 1 KF до бонуса памяти.`,
-            special: true, currency: "", cost: 0,
-            buttonText: `Переродиться · получить ${fmt(prestigeReward())} KF`,
-            canBuy: game.totalEarned >= PRESTIGE_THRESHOLD,
-            requirement: `Нужно заработать ${fmt(PRESTIGE_THRESHOLD)} GM за текущий забег`,
-            buy: doPrestige },
-          { id: "memory", name: "Память Предков", desc: "Увеличивает получаемое количество KF на 10% за уровень.",
-            level: game.metaMemory, max: 100, currency: "KF", cost: l => (50 / SCALE) * Math.pow(1.5, l),
-            effect: `Бонус KF: +${game.metaMemory * 10}%`,
-            requirement: "Нужно хотя бы одно перерождение", unlocked: game.prestigeCount > 0,
-            buy: () => game.metaMemory++ }
-        ]
-      },
-      {
-        section: "V. Исследования",
-        items: [
-          { id: "researchDepth", name: "Глубинное Понимание Кликов", desc: "Все клики получают +25% к доходу.",
-            research: true, bought: game.researchDepth, currency: "GM", cost: 25000 / SCALE,
-            requirement: "Магнетизм Золота ур. 5", unlocked: game.magnet >= 5,
-            buy: () => game.researchDepth = true },
-          { id: "researchSuper", name: "Сверхъестественная Точность", desc: "Добавляет +5% к шансу критического клика и +0,5 к множителю крита.",
-            research: true, bought: game.researchSuper, currency: "GM", cost: 100000 / SCALE,
-            requirement: "Глубинное Понимание Кликов", unlocked: game.researchDepth,
-            buy: () => game.researchSuper = true }
+          {
+            id: "researchDepth",
+            name: "Глубинное понимание кликов",
+            desc: "Все клики получают +25% к доходу.",
+            research: true,
+            bought: game.researchDepth,
+            currency: "GM",
+            cost: 25000 / SCALE,
+            requirement: "Магнетизм золота ур. 5",
+            unlocked: game.magnet >= 5,
+            buy: () => game.researchDepth = true
+          },
+          {
+            id: "researchSuper",
+            name: "Сверхъестественная точность",
+            desc: "Добавляет +5% к шансу критического клика и +0,5 к множителю крита.",
+            research: true,
+            bought: game.researchSuper,
+            currency: "GM",
+            cost: 100000 / SCALE,
+            requirement: "Глубинное понимание кликов",
+            unlocked: game.researchDepth,
+            buy: () => game.researchSuper = true
+          }
         ]
       }
     ];
   }
 
-  function prestigeReward() {
-    if (game.totalEarned < PRESTIGE_THRESHOLD) return 0;
-    return game.totalEarned / PRESTIGE_THRESHOLD * (1 + game.metaMemory * .1);
-  }
-
   function renderUpgrades() {
     $("upgradeBalance").textContent = `${fmt(game.score)} GM`;
-    $("upgradeKF").textContent = `${fmt(game.kf)} KF`;
-
     const root = $("upgradeLists");
     root.innerHTML = "";
 
@@ -903,22 +1013,18 @@
           ? (item.research ? (item.bought ? "Изучено" : "Исследование") : "Способность")
           : `Ур. ${item.level}/${item.max}`;
 
-        let cost = typeof item.cost === "function" ? item.cost(item.level || 0) : item.cost;
+        const cost = typeof item.cost === "function" ? item.cost(item.level || 0) : item.cost;
         const alreadyDone = item.research && item.bought;
         const maxed = item.max != null && item.level >= item.max;
-        const currencyBalance = item.currency === "KF" ? game.kf : game.score;
         const unlocked = item.unlocked !== false;
-        const affordable = !item.currency || currencyBalance >= cost;
+        const affordable = game.score >= cost;
         let disabled = alreadyDone || maxed || !unlocked || !affordable;
 
         if (item.special && item.canBuy !== undefined) disabled = !item.canBuy || !affordable;
-        if (item.id === "focus" && item.canBuy !== undefined) disabled = !item.canBuy || !affordable;
 
-        const priceText = item.currency
-          ? `Цена: ${fmt(cost)} ${item.currency}`
-          : (item.id === "prestige" ? "Сброс прогресса текущего забега" : "");
-
-        const actionLabel = item.buttonText || (alreadyDone ? "Изучено" : maxed ? "Максимум" : `Купить · ${priceText}`);
+        const priceText = `Цена: ${fmt(cost)} GM`;
+        const actionLabel = item.buttonText ||
+          (alreadyDone ? "Изучено" : maxed ? "Максимум" : `Купить · ${priceText}`);
 
         card.innerHTML = `
           <div class="upgrade-top">
@@ -933,25 +1039,13 @@
             <button class="buy-button" ${disabled ? "disabled" : ""}>${actionLabel}</button>
           </div>`;
 
-        const button = card.querySelector("button");
-        button.addEventListener("click", () => {
+        card.querySelector("button").addEventListener("click", () => {
           if (disabled) return;
 
-          if (item.id === "prestige") {
-            item.buy();
-            return;
-          }
+          game.score -= cost;
 
-          if (item.currency === "KF") game.kf -= cost;
-          else if (item.currency === "GM") game.score -= cost;
-
-          if (item.id === "double" && !game.doubleUnlocked) {
-            game.doubleUnlocked = true;
-          } else if (item.id === "focus" && !game.focusUnlocked) {
-            game.focusUnlocked = true;
-          } else {
-            item.buy();
-          }
+          if (item.id === "focus" && !game.focusUnlocked) game.focusUnlocked = true;
+          else item.buy();
 
           saveGame();
           renderAll();
@@ -962,34 +1056,6 @@
 
       root.appendChild(list);
     });
-  }
-
-  function doPrestige() {
-    const reward = prestigeReward();
-    if (reward <= 0) {
-      showMessage(`Сначала заработай ${fmt(PRESTIGE_THRESHOLD)} GM за этот забег.`);
-      return;
-    }
-
-    const confirmed = confirm(`Переродиться и получить ${fmt(reward)} KF? Прогресс текущего забега сбросится.`);
-    if (!confirmed) return;
-
-    const preserved = {
-      kf: game.kf + reward,
-      metaClick: game.metaClick,
-      metaDuration: game.metaDuration,
-      metaMemory: game.metaMemory,
-      prestigeCount: game.prestigeCount + 1,
-      lifetimeCrits: game.lifetimeCrits,
-      achievementClaimed: game.achievementClaimed,
-      achievementBonusChance: game.achievementBonusChance
-    };
-
-    game = freshGame();
-    Object.assign(game, preserved);
-    saveGame();
-    renderAll();
-    showMessage(`Перерождение завершено! Получено ${fmt(reward)} KF.`);
   }
 
   function renderDaily() {
@@ -1004,17 +1070,17 @@
       const card = document.createElement("div");
       card.className = `day-card${isToday ? " today" : ""}${isClaimed ? " claimed" : ""}`;
       card.innerHTML = `
-        <span class="gift-icon">${isClaimed ? "✅" : "🎁"}</span>
+        <span class="gift-icon">${isClaimed ? "✅" : reward.icon}</span>
         <span class="day-name">День ${day}</span>
-        <span class="day-reward">+${fmt(reward)} GM</span>`;
+        <span class="day-reward">${reward.label}<br>10 минут</span>`;
       $("dailyGrid").appendChild(card);
     });
 
     const claim = $("claimBonus");
     claim.disabled = claimed;
     claim.textContent = claimed
-      ? "Подарок уже получен сегодня"
-      : `Забрать подарок: +${fmt(dailyRewards[nextStreak - 1])} GM`;
+      ? "Усиление уже получено сегодня"
+      : `Забрать: ${dailyRewards[nextStreak - 1].label}`;
 
     updateBonusTimer();
   }
@@ -1027,9 +1093,10 @@
     const h = String(Math.floor(left / 3600)).padStart(2, "0");
     const m = String(Math.floor((left % 3600) / 60)).padStart(2, "0");
     const s = String(left % 60).padStart(2, "0");
+
     $("bonusTimer").textContent = daily.lastClaimDate === todayKey()
       ? `Следующий подарок через ${h}:${m}:${s}`
-      : `Подарок доступен · новый день через ${h}:${m}:${s}`;
+      : `Усиление доступно · новый день через ${h}:${m}:${s}`;
   }
 
   function renderTasks() {
@@ -1041,24 +1108,29 @@
     }
 
     $("challengeText").textContent = daily.challengeClaimed
-      ? "Марафон пройден! Награда получена."
+      ? "Марафон пройден! Усиление уже получено."
       : daily.challengeDone
-        ? "Марафон пройден! Награда: 25 GM и x1,5 к кликам на 5 минут."
-        : `Нажми ${CHALLENGE_CLICKS} раз за 60 секунд. Награда: 25 GM и x1,5 к кликам на 5 минут.`;
+        ? "Марафон пройден! Награда: усиление x1,5 на 10 минут."
+        : `Нажми ${CHALLENGE_CLICKS} раз за 60 секунд. Награда: усиление x1,5 на 10 минут.`;
 
     $("startChallenge").disabled = challenge.active || daily.challengeDone || daily.challengeClaimed;
-    $("startChallenge").textContent = challenge.active ? "Марафон идёт…" :
-      daily.challengeDone ? "Марафон выполнен" : "Начать марафон";
+    $("startChallenge").textContent = challenge.active
+      ? "Марафон идёт…"
+      : daily.challengeDone
+        ? "Марафон выполнен"
+        : "Начать марафон";
 
     $("achievementText").textContent = game.achievementClaimed
       ? `Достижение получено: ${game.lifetimeCrits} критов.`
-      : `Критические клики: ${game.lifetimeCrits} / ${ACHIEVEMENT_CRITS}. Награда: 0,001 KF и +0,5% постоянного шанса крита.`;
+      : `Критические клики: ${game.lifetimeCrits} / ${ACHIEVEMENT_CRITS}. Награда: усиленные криты на 10 минут.`;
+
     $("achievementBar").style.width =
       `${Math.min(100, game.lifetimeCrits / ACHIEVEMENT_CRITS * 100)}%`;
 
     if (challenge.active) {
       const seconds = Math.max(0, Math.ceil((challenge.endsAt - Date.now()) / 1000));
-      $("challengeTimer").textContent = `Осталось: ${seconds} сек. · клики: ${game.taps - challenge.startingTaps}/${CHALLENGE_CLICKS}`;
+      $("challengeTimer").textContent =
+        `Осталось: ${seconds} сек. · клики: ${game.taps - challenge.startingTaps}/${CHALLENGE_CLICKS}`;
     } else {
       $("challengeTimer").textContent = "";
     }
@@ -1074,19 +1146,20 @@
   function finishChallenge(success) {
     clearInterval(challenge.timer);
     challenge.active = false;
+
     if (success) {
       daily.challengeDone = true;
-      game.score += 25000 / SCALE;
-      game.totalEarned += 25000 / SCALE;
-      game.challengeMultiplierUntil = Date.now() + 5 * 60 * 1000;
+      daily.challengeClaimed = true;
+      activateBoost("turbo");
       saveDaily();
       saveGame();
       playReward();
       tg?.HapticFeedback?.notificationOccurred("success");
-      showMessage("Марафон выполнен! +25 GM и множитель кликов x1,5 на 5 минут.");
+      showMessage("Марафон выполнен! Усиление x1,5 к кликам на 10 минут.");
     } else {
       showMessage("Время вышло. Попробуй марафон завтра.");
     }
+
     renderAll();
   }
 
@@ -1099,10 +1172,9 @@
     game.energy -= 1;
     game.taps += 1;
 
-    let isCrit = Math.random() < getCritChance();
-    let amount = getTapValue(isCrit);
+    const isCrit = Math.random() < getCritChance();
+    const amount = getTapValue(isCrit);
 
-    if (Date.now() < Number(game.challengeMultiplierUntil || 0)) amount *= 1.5;
     game.score += amount;
     game.totalEarned += amount;
 
@@ -1121,10 +1193,9 @@
 
     if (!game.achievementClaimed && game.lifetimeCrits >= ACHIEVEMENT_CRITS) {
       game.achievementClaimed = true;
-      game.kf += 1 / SCALE;
-      game.achievementBonusChance += 0.005; // +0,5 процентного пункта
+      activateBoost("focus");
       playReward();
-      showMessage("Достижение «Король критов»! Получено 0,001 KF и +0,5% к постоянному шансу крита.");
+      showMessage("Достижение «Король критов»! Усиленные криты активны 10 минут.");
     }
 
     saveGame();
@@ -1133,25 +1204,30 @@
 
   $("claimBonus").addEventListener("click", () => {
     if (daily.lastClaimDate === todayKey()) return;
+
     const streak = getNextStreak();
     const reward = dailyRewards[streak - 1];
+
     daily.streak = streak;
     daily.lastClaimDate = todayKey();
-    game.score += reward;
-    game.totalEarned += reward;
+
+    activateBoost(reward.type);
     saveDaily();
     saveGame();
     playReward();
     tg?.HapticFeedback?.notificationOccurred("success");
     renderAll();
-    showMessage(`Подарок получен: +${fmt(reward)} GM!`);
+
+    showMessage(`Получено усиление «${boostName(reward.type)}» на 10 минут!`);
   });
 
   $("startChallenge").addEventListener("click", () => {
     if (daily.challengeDone || daily.challengeClaimed || challenge.active) return;
+
     challenge.active = true;
     challenge.endsAt = Date.now() + 60000;
     challenge.startingTaps = game.taps;
+
     challenge.timer = setInterval(() => {
       if (Date.now() >= challenge.endsAt) {
         finishChallenge(game.taps - challenge.startingTaps >= CHALLENGE_CLICKS);
@@ -1159,20 +1235,24 @@
         renderTasks();
       }
     }, 250);
+
     renderTasks();
   });
 
   document.querySelectorAll(".bottom-nav button").forEach(button => {
     button.addEventListener("click", () => {
       const name = button.dataset.page;
-      document.querySelectorAll(".bottom-nav button").forEach(x => x.classList.toggle("active", x === button));
-      document.querySelectorAll(".page").forEach(page => page.classList.toggle("active", page.id === `page-${name}`));
+      document.querySelectorAll(".bottom-nav button")
+        .forEach(x => x.classList.toggle("active", x === button));
+      document.querySelectorAll(".page")
+        .forEach(page => page.classList.toggle("active", page.id === `page-${name}`));
       renderAll();
     });
   });
 
   $("openSettings").addEventListener("click", () => $("settingsBackdrop").classList.add("open"));
   $("closeSettings").addEventListener("click", () => $("settingsBackdrop").classList.remove("open"));
+
   $("settingsBackdrop").addEventListener("click", e => {
     if (e.target === $("settingsBackdrop")) $("settingsBackdrop").classList.remove("open");
   });
@@ -1195,6 +1275,7 @@
   renderAll();
 
   let lastDate = todayKey();
+
   setInterval(() => {
     if (game.energy < MAX_ENERGY) {
       game.energy = Math.min(MAX_ENERGY, game.energy + ENERGY_REGEN_PER_SECOND);
@@ -1209,13 +1290,11 @@
 
     renderGame();
 
-    // Перерисовывает таймеры способностей и состояние кнопок.
-    if (document.getElementById("page-upgrades").classList.contains("active")) {
-      renderUpgrades();
-    }
+    if ($("page-upgrades").classList.contains("active")) renderUpgrades();
     if (challenge.active) renderTasks();
   }, 1000);
 })();
 </script>
 </body>
 </html>
+```
