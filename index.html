@@ -65,6 +65,13 @@
       box-shadow: 0 4px 0 #267d2c, 0 12px 28px #0005, inset 0 4px 12px #ffffff80;
     }
     .tap-button:disabled { cursor: not-allowed; filter: grayscale(.55); opacity: .7; }
+    .tap-button.tap-pop { animation: tap-pop 280ms ease-out; }
+    @keyframes tap-pop {
+      0% { transform: scale(1); }
+      35% { transform: scale(1.08) rotate(-3deg); }
+      70% { transform: scale(.96) rotate(2deg); }
+      100% { transform: scale(1); }
+    }
     .omnom { width: 155px; height: 155px; }
     .energy-card { padding: 14px; }
     .energy-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
@@ -74,6 +81,13 @@
       background: linear-gradient(90deg, #42e695, #3bb2ff); transition: width .2s;
     }
     .hint { min-height: 20px; margin: 13px 0 0; color: var(--muted); font-size: 14px; text-align: center; }
+    .game-controls { display: grid; gap: 8px; margin-top: 10px; }
+    .game-control-button {
+      width: 100%; padding: 10px 12px; border: 1px solid var(--border);
+      border-radius: 12px; color: var(--text); background: #ffffff12;
+      font-weight: 700; cursor: pointer; touch-action: manipulation;
+    }
+    .game-control-button:active { transform: scale(.98); }
     .page-title { margin: 8px 0 6px; font-size: 23px; }
     .page-description { margin: 0 0 16px; color: var(--muted); line-height: 1.45; }
     .panel { padding: 15px; }
@@ -275,6 +289,10 @@
       <div class="bar"><div id="energyBar"></div></div>
     </section>
     <p class="hint" id="gameHint">Нажимай на Ам Няма, чтобы заработать!</p>
+    <div class="game-controls">
+      <button class="game-control-button" id="resetProgress">Сбросить весь прогресс</button>
+      <button class="game-control-button" id="musicToggle">🎵 Музыка: включена</button>
+    </div>
   </section>
 
   <section class="page" id="page-upgrades">
@@ -571,6 +589,105 @@
   }
   function durationMultiplier() {
     return 1 + game.metaDuration * 0.15;
+  }
+
+  let audioContext = null;
+  let musicTimer = null;
+  let musicEnabled = true;
+  let musicStep = 0;
+
+  function getAudioContext() {
+    if (!audioContext) {
+      const AudioClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioClass) return null;
+      audioContext = new AudioClass();
+    }
+    if (audioContext.state === "suspended") audioContext.resume().catch(() => {});
+    return audioContext;
+  }
+
+  function playTone(frequency, duration, volume, type = "sine", delay = 0) {
+    const context = getAudioContext();
+    if (!context) return;
+
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    const start = context.currentTime + delay;
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(frequency, start);
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.exponentialRampToValueAtTime(volume, start + 0.025);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+    oscillator.connect(gain);
+    gain.connect(context.destination);
+    oscillator.start(start);
+    oscillator.stop(start + duration + 0.02);
+  }
+
+  function startMusic() {
+    if (!musicEnabled || musicTimer) return;
+    const context = getAudioContext();
+    if (!context) return;
+
+    const melody = [523.25, 659.25, 783.99, 659.25, 587.33, 698.46, 880, 698.46,
+      523.25, 659.25, 783.99, 987.77, 880, 783.99, 659.25, 587.33];
+    const bass = [261.63, 329.63, 392, 329.63];
+
+    const playNextNote = () => {
+      if (!musicEnabled) return;
+      const index = musicStep % melody.length;
+      playTone(melody[index], 0.34, 0.012, "sine");
+      if (musicStep % 4 === 0) {
+        playTone(bass[Math.floor(musicStep / 4) % bass.length], 0.72, 0.006, "triangle");
+      }
+      musicStep++;
+    };
+
+    playNextNote();
+    musicTimer = setInterval(playNextNote, 420);
+  }
+
+  function playTapSound() {
+    const notes = [659.25, 783.99, 880, 783.99, 698.46, 880];
+    playTone(notes[game.taps % notes.length], 0.12, 0.035, "triangle");
+  }
+
+  function animateOmnomToBalance() {
+    const tapButton = $("tapButton");
+    const omnom = tapButton.querySelector(".omnom");
+    const score = $("score");
+    const from = omnom.getBoundingClientRect();
+    const to = score.getBoundingClientRect();
+    const size = Math.min(from.width, 110);
+    const startX = from.left + from.width / 2;
+    const startY = from.top + from.height / 2;
+    const endX = to.left + to.width / 2;
+    const endY = to.top + to.height / 2;
+    const flyingOmnom = omnom.cloneNode(true);
+
+    flyingOmnom.style.position = "fixed";
+    flyingOmnom.style.left = `${startX - size / 2}px`;
+    flyingOmnom.style.top = `${startY - size / 2}px`;
+    flyingOmnom.style.width = `${size}px`;
+    flyingOmnom.style.height = `${size}px`;
+    flyingOmnom.style.margin = "0";
+    flyingOmnom.style.zIndex = "9999";
+    flyingOmnom.style.pointerEvents = "none";
+    document.body.appendChild(flyingOmnom);
+
+    const animation = flyingOmnom.animate([
+      { transform: "translate3d(0, 0, 0) scale(1) rotate(0deg)", opacity: 1 },
+      {
+        transform: `translate3d(${endX - startX}px, ${endY - startY}px, 0) scale(.16) rotate(360deg)`,
+        opacity: 0.15
+      }
+    ], {
+      duration: 520,
+      easing: "cubic-bezier(.22,.8,.25,1)",
+      fill: "forwards"
+    });
+
+    animation.onfinish = () => flyingOmnom.remove();
   }
 
   function playReward() {
@@ -1266,6 +1383,54 @@
 
   $("startShooter").addEventListener("click", startShooter);
 
+  function resetProgress() {
+    const reset = () => {
+      if (shooterActive) {
+        shooterActive = false;
+        cancelAnimationFrame(shooterFrame);
+      }
+
+      shooterBalloons = [];
+      shooterBullets = [];
+      game = freshGame();
+      daily = { lastClaimDate: "", day: 0 };
+      localStorage.removeItem(GAME_KEY);
+      localStorage.removeItem(DAILY_KEY);
+      saveGame();
+      saveDaily();
+      $("shooterStatus").textContent = "Нажми «Начать игру», чтобы играть.";
+      renderAll();
+      drawShooter();
+    };
+
+    const message =
+      "Сбросить игровой прогресс и ежедневные награды? Это действие нельзя отменить. Баланс Telegram Stars хранится на сервере и не изменится.";
+
+    if (tg?.showConfirm) {
+      tg.showConfirm(message, confirmed => {
+        if (confirmed) reset();
+      });
+    } else if (window.confirm(message)) {
+      reset();
+    }
+  }
+
+  $("resetProgress").addEventListener("click", resetProgress);
+
+  $("musicToggle").addEventListener("click", () => {
+    musicEnabled = !musicEnabled;
+    $("musicToggle").textContent = musicEnabled
+      ? "🎵 Музыка: включена"
+      : "🔇 Музыка: выключена";
+
+    if (musicEnabled) {
+      startMusic();
+    } else if (musicTimer) {
+      clearInterval(musicTimer);
+      musicTimer = null;
+    }
+  });
+
   function renderAll() {
     renderGame();
     renderUpgrades();
@@ -1281,6 +1446,18 @@
 
   $("tapButton").addEventListener("click", () => {
     if (game.energy < 1) return;
+
+    startMusic();
+    playTapSound();
+    animateOmnomToBalance();
+
+    const tapButton = $("tapButton");
+    tapButton.classList.remove("tap-pop");
+    void tapButton.offsetWidth;
+    tapButton.classList.add("tap-pop");
+    tapButton.addEventListener("animationend", () => {
+      tapButton.classList.remove("tap-pop");
+    }, { once: true });
 
     game.energy -= 1;
     game.taps += 1;
