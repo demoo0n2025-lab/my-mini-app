@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="theme-color" content="#101426">
-  <title>Моя тапалка</title>
+  <title>kriptogig</title>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
@@ -13,125 +13,182 @@
       box-sizing: border-box;
     }
 
+    :root {
+      color-scheme: dark;
+      --text: #ffffff;
+      --muted: #b8c0e0;
+      --card: #ffffff0d;
+      --border: #ffffff1c;
+      --accent: #ffe77a;
+    }
+
     body {
       margin: 0;
       min-height: 100vh;
-      padding: 24px 18px 110px;
-      color: #fff;
+      padding: 20px 16px calc(100px + env(safe-area-inset-bottom));
+      color: var(--text);
       font-family: Arial, sans-serif;
-      text-align: center;
       background:
         radial-gradient(circle at top, #35418b 0, transparent 42%),
         #101426;
     }
 
     button {
+      color: inherit;
       font: inherit;
     }
 
     .app {
       width: min(100%, 420px);
       margin: 0 auto;
-      padding-top: 16px;
     }
 
-    .top-row {
+    .header {
       display: flex;
       align-items: center;
-      justify-content: center;
-      position: relative;
+      justify-content: space-between;
+      margin-bottom: 20px;
     }
 
     h1 {
       margin: 0;
-      font-size: 30px;
+      font-size: 28px;
+      letter-spacing: 0.5px;
     }
 
-    .sound-button {
-      position: absolute;
-      right: 0;
-      width: 42px;
-      height: 42px;
-      border: 1px solid #ffffff25;
+    .settings-button {
+      width: 44px;
+      height: 44px;
+      border: 1px solid var(--border);
       border-radius: 14px;
-      color: #fff;
       background: #ffffff12;
       cursor: pointer;
+      font-size: 20px;
     }
 
-    .subtitle {
-      margin: 8px 0 26px;
-      color: #b8c0e0;
+    .page {
+      display: none;
+      animation: page-in 180ms ease-out;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    @keyframes page-in {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .score-card,
-    .energy-card,
-    .task-card {
-      border: 1px solid #ffffff1c;
+    .panel,
+    .tile {
+      border: 1px solid var(--border);
       border-radius: 20px;
-      background: #ffffff0d;
+      background: var(--card);
     }
 
     .score-card {
-      padding: 18px;
+      padding: 16px;
+      text-align: center;
     }
 
     .score-label,
-    .energy-label {
-      color: #b8c0e0;
-      font-size: 14px;
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
     }
 
     #score {
       display: inline-block;
-      margin-top: 6px;
-      font-size: 42px;
+      margin-top: 5px;
+      font-size: 38px;
       font-weight: 700;
       font-variant-numeric: tabular-nums;
     }
 
-    .coin-button {
+    .game-grid {
       display: grid;
-      width: 230px;
-      height: 230px;
-      margin: 30px auto;
-      place-items: center;
-      border: 0;
-      border-radius: 50%;
-      color: #553600;
-      font-size: 100px;
-      cursor: pointer;
-      user-select: none;
-      touch-action: manipulation;
-      background: linear-gradient(145deg, #ffe77a, #ffab21);
-      box-shadow: 0 12px 0 #bd6d12, 0 20px 45px #0005;
-      transition: transform 0.08s, box-shadow 0.08s;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin: 16px 0;
     }
 
-    .coin-button:active {
-      transform: translateY(8px) scale(0.97);
-      box-shadow: 0 4px 0 #bd6d12, 0 12px 28px #0005;
-    }
-
-    .coin-button:disabled {
-      cursor: not-allowed;
-      filter: grayscale(0.6);
-      opacity: 0.65;
-    }
-
-    .energy-card {
-      padding: 16px;
-      text-align: left;
-    }
-
-    .energy-row {
+    .tile {
       display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
+      min-width: 0;
+      aspect-ratio: 1;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .coin-tile {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #ffe77a70;
+      color: #553600;
+      background: linear-gradient(145deg, #ffe77a, #ffab21);
+      box-shadow: 0 8px 0 #bd6d12, 0 16px 32px #0004;
+      cursor: pointer;
+      touch-action: manipulation;
+      user-select: none;
+      transition: transform 100ms, box-shadow 100ms, filter 150ms;
+    }
+
+    .coin-tile:active {
+      transform: translateY(5px) scale(0.98);
+      box-shadow: 0 3px 0 #bd6d12, 0 9px 20px #0004;
+    }
+
+    .coin-tile:disabled {
+      cursor: not-allowed;
+      filter: grayscale(0.55);
+      opacity: 0.72;
+    }
+
+    .coin-icon {
+      font-size: clamp(48px, 15vw, 74px);
+      line-height: 1;
+    }
+
+    .tile-caption {
+      margin-top: 12px;
+      color: #553600;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .energy-tile {
+      gap: 12px;
+    }
+
+    .energy-icon {
+      font-size: 42px;
+    }
+
+    .energy-value {
+      font-size: 20px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .energy-label {
+      color: var(--muted);
+      font-size: 13px;
     }
 
     .bar {
-      height: 12px;
+      width: 100%;
+      height: 10px;
       overflow: hidden;
       border-radius: 99px;
       background: #ffffff20;
@@ -142,21 +199,116 @@
       height: 100%;
       border-radius: inherit;
       background: linear-gradient(90deg, #42e695, #3bb2ff);
-      transition: width 0.2s;
+      transition: width 200ms;
     }
 
-    .task-card {
-      margin-top: 12px;
-      padding: 13px 16px;
-      color: #cbd2f0;
-      font-size: 14px;
-    }
-
-    #hint {
+    .hint {
       min-height: 20px;
-      margin-top: 16px;
-      color: #b8c0e0;
+      margin: 12px 0 0;
+      color: var(--muted);
       font-size: 14px;
+      text-align: center;
+    }
+
+    .page-title {
+      margin: 8px 0 6px;
+      font-size: 23px;
+    }
+
+    .page-description {
+      margin: 0 0 18px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .panel {
+      padding: 16px;
+    }
+
+    .daily-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .day-card {
+      display: flex;
+      aspect-ratio: 1;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      color: #fff;
+      background: #ffffff0a;
+      text-align: center;
+    }
+
+    .day-card.today {
+      border-color: #ffe77a;
+      background: #ffe77a18;
+    }
+
+    .day-card.claimed {
+      border-color: #42e69570;
+      background: #42e69514;
+    }
+
+    .gift-icon {
+      font-size: 30px;
+    }
+
+    .day-name {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .day-reward {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .claim-button {
+      width: 100%;
+      margin-top: 14px;
+      padding: 14px;
+      border: 0;
+      border-radius: 14px;
+      color: #27200a;
+      background: linear-gradient(135deg, #ffe77a, #ffb52e);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .claim-button:disabled {
+      cursor: default;
+      filter: grayscale(0.5);
+      opacity: 0.7;
+    }
+
+    .profile-stat {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .profile-stat:last-child {
+      border-bottom: 0;
+    }
+
+    .profile-stat strong {
+      text-align: right;
+    }
+
+    .empty-state {
+      padding: 28px 16px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.5;
     }
 
     .bottom-nav {
@@ -167,8 +319,8 @@
       display: grid;
       width: min(calc(100% - 24px), 420px);
       grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      padding: 10px;
+      gap: 5px;
+      padding: 8px;
       transform: translateX(-50%);
       border: 1px solid #ffffff25;
       border-radius: 18px;
@@ -178,34 +330,136 @@
 
     .bottom-nav button {
       display: flex;
+      min-width: 0;
       flex-direction: column;
       align-items: center;
       gap: 4px;
       padding: 8px 2px;
       border: 0;
       border-radius: 12px;
-      color: #fff;
+      color: #d7dcf2;
       background: transparent;
-      font-size: 20px;
       cursor: pointer;
-      transition: background 0.15s, transform 0.15s;
+      font-size: 19px;
     }
 
     .bottom-nav button span {
-      font-size: 11px;
+      font-size: 10px;
     }
 
-    .bottom-nav button:active,
     .bottom-nav button.active {
-      background: #ffffff20;
-      transform: scale(0.96);
+      color: #fff;
+      background: #ffffff1c;
+    }
+
+    .settings-backdrop {
+      position: fixed;
+      z-index: 20;
+      inset: 0;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 16px;
+      background: #0009;
+    }
+
+    .settings-backdrop.open {
+      display: flex;
+    }
+
+    .settings-menu {
+      width: min(100%, 420px);
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: #1a2038;
+      box-shadow: 0 16px 48px #0008;
+      animation: page-in 180ms ease-out;
+    }
+
+    .settings-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .settings-head h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .close-settings {
+      width: 36px;
+      height: 36px;
+      border: 0;
+      border-radius: 12px;
+      background: #ffffff12;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 15px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .setting-row:last-child {
+      border-bottom: 0;
+    }
+
+    .setting-label {
+      font-weight: 700;
+    }
+
+    .setting-note {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .switch {
+      width: 50px;
+      height: 30px;
+      flex: 0 0 auto;
+      appearance: none;
+      border: 0;
+      border-radius: 99px;
+      background: #626982;
+      cursor: pointer;
+      position: relative;
+      transition: background 150ms;
+    }
+
+    .switch::after {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #fff;
+      content: "";
+      transition: transform 150ms;
+    }
+
+    .switch:checked {
+      background: #42c88b;
+    }
+
+    .switch:checked::after {
+      transform: translateX(20px);
     }
 
     .flying-coin {
       position: fixed;
       z-index: 50;
       pointer-events: none;
-      font-size: 32px;
+      font-size: 30px;
       will-change: transform, opacity;
       transition:
         transform 650ms cubic-bezier(.2, .8, .25, 1),
@@ -217,7 +471,7 @@
       z-index: 49;
       pointer-events: none;
       color: #ffe77a;
-      font-size: 24px;
+      font-size: 23px;
       font-weight: 700;
       text-shadow: 0 2px 8px #0008;
       animation: float-up 700ms ease-out forwards;
@@ -226,11 +480,26 @@
     @keyframes float-up {
       from {
         opacity: 1;
-        transform: translate(-50%, 0) scale(0.8);
+        transform: translate(-50%, 0) scale(.8);
       }
       to {
         opacity: 0;
-        transform: translate(-50%, -75px) scale(1.2);
+        transform: translate(-50%, -65px) scale(1.2);
+      }
+    }
+
+    @media (max-width: 350px) {
+      body {
+        padding-right: 12px;
+        padding-left: 12px;
+      }
+
+      .tile {
+        padding: 10px;
+      }
+
+      .day-card {
+        padding: 7px;
       }
     }
 
@@ -240,65 +509,121 @@
       *::after {
         scroll-behavior: auto !important;
       }
-
-      .flying-coin {
-        transition-duration: 150ms;
-      }
     }
   </style>
 </head>
 
 <body>
   <main class="app">
-    <div class="top-row">
-      <h1>Моя тапалка</h1>
-      <button class="sound-button" id="soundToggle" aria-label="Выключить звук">
-        🔊
+    <header class="header">
+      <h1>kriptogig</h1>
+      <button class="settings-button" id="openSettings" aria-label="Настройки">
+        ⚙️
       </button>
-    </div>
+    </header>
 
-    <p class="subtitle">Нажимай на монету и собирай очки</p>
-
-    <section class="score-card">
-      <div class="score-label">ТВОИ МОНЕТЫ</div>
-      <div id="score">0</div>
-    </section>
-
-    <button class="coin-button" id="tapButton" aria-label="Нажать на монету">
-      🪙
-    </button>
-
-    <section class="energy-card">
-      <div class="energy-row">
-        <span class="energy-label">Энергия</span>
-        <span id="energyText">100 / 100</span>
+    <!-- Игра -->
+    <section class="page active" id="page-game">
+      <div class="score-card">
+        <div class="score-label">ТВОЙ БАЛАНС</div>
+        <div id="score">0</div>
       </div>
-      <div class="bar">
-        <div id="energyBar"></div>
+
+      <div class="game-grid">
+        <button class="tile coin-tile" id="tapButton" aria-label="Нажать на монету">
+          <span class="coin-icon">🪙</span>
+          <span class="tile-caption">НАЖМИ</span>
+        </button>
+
+        <div class="tile energy-tile">
+          <span class="energy-icon">⚡</span>
+          <span class="energy-label">ЭНЕРГИЯ</span>
+          <span class="energy-value" id="energyText">100 / 100</span>
+          <div class="bar">
+            <div id="energyBar"></div>
+          </div>
+        </div>
+      </div>
+
+      <p class="hint" id="gameHint">Нажимай на монету, чтобы заработать</p>
+    </section>
+
+    <!-- Ежедневные бонусы -->
+    <section class="page" id="page-bonus">
+      <h2 class="page-title">Ежедневный бонус 🎁</h2>
+      <p class="page-description">
+        Заходи каждый день и забирай подарок. Если пропустить день, серия начнётся заново.
+      </p>
+
+      <div class="panel">
+        <div class="daily-grid" id="dailyGrid"></div>
+        <button class="claim-button" id="claimBonus">Забрать подарок</button>
       </div>
     </section>
 
-    <section class="task-card" id="taskStatus">
-      Задание: 0 / 20 нажатий
+    <!-- Задания -->
+    <section class="page" id="page-tasks">
+      <h2 class="page-title">Задания</h2>
+      <div class="panel empty-state">
+        Сейчас заданий нет.<br>
+        Загляни сюда позже!
+      </div>
     </section>
 
-    <div id="hint">Каждое нажатие даёт 1 монету</div>
+    <!-- Профиль -->
+    <section class="page" id="page-profile">
+      <h2 class="page-title">Профиль</h2>
+      <p class="page-description">Твоя статистика в kriptogig.</p>
+
+      <div class="panel">
+        <div class="profile-stat">
+          <span class="muted">Баланс</span>
+          <strong id="profileScore">0 монет</strong>
+        </div>
+        <div class="profile-stat">
+          <span class="muted">Всего нажатий</span>
+          <strong id="profileTaps">0</strong>
+        </div>
+        <div class="profile-stat">
+          <span class="muted">Серия входов</span>
+          <strong id="profileStreak">0 дней</strong>
+        </div>
+      </div>
+    </section>
   </main>
 
-  <nav class="bottom-nav" aria-label="Меню приложения">
-    <button class="active" id="playNav">
-      🎮<span>Играть</span>
-    </button>
-    <button id="bonusNav">
-      🎁<span>Бонус</span>
-    </button>
-    <button id="taskNav">
-      ✅<span>Задание</span>
-    </button>
-    <button id="profileNav">
-      👤<span>Профиль</span>
-    </button>
+  <nav class="bottom-nav" aria-label="Главное меню">
+    <button class="active" data-page="game">🎮<span>Игра</span></button>
+    <button data-page="bonus">🎁<span>Бонус</span></button>
+    <button data-page="tasks">📋<span>Задания</span></button>
+    <button data-page="profile">👤<span>Профиль</span></button>
   </nav>
+
+  <!-- Настройки музыки и звуков -->
+  <div class="settings-backdrop" id="settingsBackdrop">
+    <section class="settings-menu" role="dialog" aria-modal="true" aria-label="Настройки звука">
+      <div class="settings-head">
+        <h2>Настройки звука</h2>
+        <button class="close-settings" id="closeSettings" aria-label="Закрыть">✕</button>
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Фоновая музыка</div>
+          <div class="setting-note">Спокойная мелодия во время игры</div>
+        </div>
+        <input class="switch" type="checkbox" id="musicToggle" aria-label="Фоновая музыка">
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Звуки нажатия</div>
+          <div class="setting-note">Звук при нажатии на монету</div>
+        </div>
+        <input class="switch" type="checkbox" id="tapSoundToggle" aria-label="Звуки нажатия">
+      </div>
+    </section>
+  </div>
 
   <script>
     const tg = window.Telegram?.WebApp;
@@ -306,95 +631,172 @@
     tg?.expand();
 
     const MAX_ENERGY = 100;
-    const REGEN_PER_SECOND = 1;
-    const TASK_GOAL = 20;
-    const TASK_REWARD = 25;
-    const STORAGE_KEY = "myTelegramTapperV2";
-    const BONUS_KEY = "tapDailyBonusDate";
-    const SOUND_KEY = "tapSoundEnabled";
+    const ENERGY_REGEN_PER_SECOND = 1;
+    const GAME_KEY = "kriptogigGameV1";
+    const DAILY_KEY = "kriptogigDailyV1";
+    const MUSIC_SETTING_KEY = "kriptogigMusicOn";
+    const TAP_SETTING_KEY = "kriptogigTapSoundOn";
+    const DAILY_REWARDS = [10, 20, 30, 40, 50, 75, 100];
 
     const scoreElement = document.getElementById("score");
     const energyText = document.getElementById("energyText");
     const energyBar = document.getElementById("energyBar");
     const tapButton = document.getElementById("tapButton");
-    const hint = document.getElementById("hint");
-    const taskStatus = document.getElementById("taskStatus");
-    const soundToggle = document.getElementById("soundToggle");
+    const gameHint = document.getElementById("gameHint");
+    const dailyGrid = document.getElementById("dailyGrid");
+    const claimBonusButton = document.getElementById("claimBonus");
+    const settingsBackdrop = document.getElementById("settingsBackdrop");
+    const musicToggle = document.getElementById("musicToggle");
+    const tapSoundToggle = document.getElementById("tapSoundToggle");
 
     function loadGame() {
       try {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-
+        const saved = JSON.parse(localStorage.getItem(GAME_KEY));
         if (saved) {
-          const secondsPassed = Math.max(
+          const elapsedSeconds = Math.max(
             0,
             (Date.now() - Number(saved.lastTime || Date.now())) / 1000
           );
 
-          const recoveredEnergy = Math.floor(
-            secondsPassed * REGEN_PER_SECOND
+          const energy = Math.min(
+            MAX_ENERGY,
+            Math.max(0, Number(saved.energy) || 0) +
+              Math.floor(elapsedSeconds * ENERGY_REGEN_PER_SECOND)
           );
 
           return {
             score: Math.max(0, Number(saved.score) || 0),
-            energy: Math.min(
-              MAX_ENERGY,
-              Math.max(0, (Number(saved.energy) || 0) + recoveredEnergy)
-            ),
-            taps: Math.max(0, Number(saved.taps) || 0),
-            taskClaimed: Boolean(saved.taskClaimed)
+            energy,
+            taps: Math.max(0, Number(saved.taps) || 0)
           };
         }
       } catch (error) {
-        console.log("Не удалось загрузить сохранение");
+        console.log("Не удалось загрузить сохранение.");
       }
 
-      return {
-        score: 0,
-        energy: MAX_ENERGY,
-        taps: 0,
-        taskClaimed: false
-      };
+      return { score: 0, energy: MAX_ENERGY, taps: 0 };
     }
 
     const game = loadGame();
-    let soundEnabled = localStorage.getItem(SOUND_KEY) !== "false";
-    let audioContext = null;
+
+    function loadDaily() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(DAILY_KEY));
+        if (saved) {
+          return {
+            lastClaimDate: saved.lastClaimDate || "",
+            streak: Math.max(0, Number(saved.streak) || 0)
+          };
+        }
+      } catch (error) {
+        console.log("Не удалось загрузить ежедневный бонус.");
+      }
+
+      return { lastClaimDate: "", streak: 0 };
+    }
+
+    const daily = loadDaily();
 
     function saveGame() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      localStorage.setItem(GAME_KEY, JSON.stringify({
         score: game.score,
         energy: game.energy,
         taps: game.taps,
-        taskClaimed: game.taskClaimed,
         lastTime: Date.now()
       }));
     }
 
-    function render() {
+    function saveDaily() {
+      localStorage.setItem(DAILY_KEY, JSON.stringify(daily));
+    }
+
+    function localDateKey(date = new Date()) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function yesterdayKey() {
+      const date = new Date();
+      date.setDate(date.getDate() - 1);
+      return localDateKey(date);
+    }
+
+    function getNextStreak() {
+      if (daily.lastClaimDate === localDateKey()) {
+        return Math.max(1, daily.streak);
+      }
+
+      if (daily.lastClaimDate === yesterdayKey()) {
+        return Math.min(7, daily.streak + 1);
+      }
+
+      return 1;
+    }
+
+    function renderGame() {
       scoreElement.textContent = game.score.toLocaleString("ru-RU");
       energyText.textContent = `${game.energy} / ${MAX_ENERGY}`;
       energyBar.style.width = `${(game.energy / MAX_ENERGY) * 100}%`;
       tapButton.disabled = game.energy < 1;
 
-      if (game.taskClaimed) {
-        taskStatus.textContent = "Задание выполнено: награда получена 🎉";
-      } else {
-        taskStatus.textContent =
-          `Задание: ${Math.min(game.taps, TASK_GOAL)} / ${TASK_GOAL} нажатий`;
-      }
-
-      hint.textContent = game.energy < 1
+      gameHint.textContent = game.energy < 1
         ? "Энергия закончилась — она постепенно восстановится"
-        : "Каждое нажатие даёт 1 монету";
+        : "Нажимай на монету, чтобы заработать";
+
+      document.getElementById("profileScore").textContent =
+        `${game.score.toLocaleString("ru-RU")} монет`;
+      document.getElementById("profileTaps").textContent =
+        game.taps.toLocaleString("ru-RU");
+      document.getElementById("profileStreak").textContent =
+        `${daily.streak} ${daily.streak === 1 ? "день" : "дней"}`;
     }
 
-    function getTodayKey() {
-      const date = new Date();
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const day = String(date.getDate()).padStart(2, "0");
-      return `${year}-${month}-${day}`;
+    function renderDaily() {
+      const nextStreak = getNextStreak();
+      const alreadyClaimed = daily.lastClaimDate === localDateKey();
+
+      dailyGrid.innerHTML = "";
+
+      DAILY_REWARDS.forEach((reward, index) => {
+        const dayNumber = index + 1;
+        const card = document.createElement("div");
+        card.className = "day-card";
+
+        if (dayNumber === nextStreak && !alreadyClaimed) {
+          card.classList.add("today");
+        }
+
+        if (alreadyClaimed && dayNumber <= daily.streak) {
+          card.classList.add("claimed");
+        }
+
+        const isCurrentReward = dayNumber === nextStreak && !alreadyClaimed;
+        const isClaimed = alreadyClaimed && dayNumber <= daily.streak;
+
+        card.innerHTML = `
+          <span class="gift-icon">${isClaimed ? "✅" : "🎁"}</span>
+          <span class="day-name">День ${dayNumber}</span>
+          <span class="day-reward">+${reward} монет</span>
+        `;
+
+        dailyGrid.appendChild(card);
+      });
+
+      if (alreadyClaimed) {
+        claimBonusButton.disabled = true;
+        claimBonusButton.textContent = "Подарок уже получен сегодня";
+      } else {
+        claimBonusButton.disabled = false;
+        claimBonusButton.textContent =
+          `Забрать подарок: +${DAILY_REWARDS[nextStreak - 1]} монет`;
+      }
+    }
+
+    function render() {
+      renderGame();
+      renderDaily();
     }
 
     function showMessage(message) {
@@ -405,63 +807,101 @@
       }
     }
 
-    function playTone(frequency, duration = 0.12, type = "sine", volume = 0.06) {
-      if (!soundEnabled) return;
+    // Звук и синтезированная фоновая музыка
+    let audioContext = null;
+    let musicTimer = null;
+    let musicNoteIndex = 0;
 
-      try {
-        const AudioContextClass =
-          window.AudioContext || window.webkitAudioContext;
+    let musicEnabled =
+      localStorage.getItem(MUSIC_SETTING_KEY) === "true";
+    let tapSoundEnabled =
+      localStorage.getItem(TAP_SETTING_KEY) !== "false";
 
-        if (!AudioContextClass) return;
+    const melody = [261.63, 329.63, 392.00, 329.63, 293.66, 349.23, 440.00, 349.23];
 
-        audioContext ??= new AudioContextClass();
+    function getAudioContext() {
+      const AudioContextClass =
+        window.AudioContext || window.webkitAudioContext;
 
-        if (audioContext.state === "suspended") {
-          audioContext.resume();
-        }
+      if (!AudioContextClass) return null;
 
-        const oscillator = audioContext.createOscillator();
-        const gain = audioContext.createGain();
+      audioContext ??= new AudioContextClass();
 
-        oscillator.type = type;
-        oscillator.frequency.setValueAtTime(
-          frequency,
-          audioContext.currentTime
-        );
+      if (audioContext.state === "suspended") {
+        audioContext.resume();
+      }
 
-        gain.gain.setValueAtTime(volume, audioContext.currentTime);
-        gain.gain.exponentialRampToValueAtTime(
-          0.001,
-          audioContext.currentTime + duration
-        );
+      return audioContext;
+    }
 
-        oscillator.connect(gain);
-        gain.connect(audioContext.destination);
+    function playTone(frequency, duration = 0.14, volume = 0.04, type = "sine") {
+      const context = getAudioContext();
+      if (!context) return;
 
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime + duration);
-      } catch (error) {
-        // Если звук недоступен в браузере, игра продолжит работать без него.
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+
+      oscillator.type = type;
+      oscillator.frequency.setValueAtTime(frequency, context.currentTime);
+      gain.gain.setValueAtTime(volume, context.currentTime);
+      gain.gain.exponentialRampToValueAtTime(
+        0.001,
+        context.currentTime + duration
+      );
+
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+      oscillator.start();
+      oscillator.stop(context.currentTime + duration);
+    }
+
+    function startMusic() {
+      if (!musicEnabled || musicTimer) return;
+
+      getAudioContext();
+      musicNoteIndex = 0;
+
+      const playNextNote = () => {
+        if (!musicEnabled) return;
+
+        const note = melody[musicNoteIndex % melody.length];
+        playTone(note, 0.42, 0.018, "sine");
+        musicNoteIndex += 1;
+      };
+
+      playNextNote();
+      musicTimer = setInterval(playNextNote, 520);
+    }
+
+    function stopMusic() {
+      if (musicTimer) {
+        clearInterval(musicTimer);
+        musicTimer = null;
       }
     }
 
     function playTapSound() {
-      playTone(620, 0.09, "triangle", 0.045);
+      if (tapSoundEnabled) {
+        playTone(620, 0.09, 0.045, "triangle");
+      }
     }
 
     function playRewardSound() {
-      playTone(660, 0.12, "sine", 0.05);
-      setTimeout(() => playTone(880, 0.18, "sine", 0.05), 100);
+      playTone(660, 0.12, 0.05);
+      setTimeout(() => playTone(880, 0.18, 0.05), 110);
     }
 
     function animateCoinToBalance() {
-      const start = tapButton.getBoundingClientRect();
-      const end = scoreElement.getBoundingClientRect();
+      const buttonRect = tapButton.getBoundingClientRect();
+      const scoreRect = scoreElement.getBoundingClientRect();
 
-      const startX = start.left + start.width / 2;
-      const startY = start.top + start.height / 2;
-      const endX = end.left + end.width / 2;
-      const endY = end.top + end.height / 2;
+      // Каждый раз выбирается новое место внутри квадрата-монеты.
+      const startX =
+        buttonRect.left + buttonRect.width * (0.25 + Math.random() * 0.5);
+      const startY =
+        buttonRect.top + buttonRect.height * (0.25 + Math.random() * 0.5);
+      const endX = scoreRect.left + scoreRect.width / 2;
+      const endY = scoreRect.top + scoreRect.height / 2;
 
       const coin = document.createElement("span");
       coin.className = "flying-coin";
@@ -475,7 +915,7 @@
         requestAnimationFrame(() => {
           coin.style.transform =
             `translate(calc(-50% + ${endX - startX}px), ` +
-            `calc(-50% + ${endY - startY}px)) scale(.25)`;
+            `calc(-50% + ${endY - startY}px)) scale(.25) rotate(360deg)`;
           coin.style.opacity = "0";
         });
       });
@@ -495,6 +935,10 @@
     tapButton.addEventListener("click", () => {
       if (game.energy < 1) return;
 
+      // Первый жест пользователя разрешает браузеру запускать аудио.
+      getAudioContext();
+      startMusic();
+
       game.score += 1;
       game.energy -= 1;
       game.taps += 1;
@@ -507,86 +951,91 @@
       render();
     });
 
-    document.getElementById("playNav").addEventListener("click", () => {
-      tapButton.scrollIntoView({ behavior: "smooth", block: "center" });
-    });
-
-    document.getElementById("bonusNav").addEventListener("click", () => {
-      if (localStorage.getItem(BONUS_KEY) === getTodayKey()) {
-        showMessage("Сегодняшний бонус уже получен. Загляни завтра!");
+    document.getElementById("claimBonus").addEventListener("click", () => {
+      if (daily.lastClaimDate === localDateKey()) {
+        showMessage("Ты уже получил подарок сегодня. Загляни завтра!");
         return;
       }
 
-      game.score += 10;
-      localStorage.setItem(BONUS_KEY, getTodayKey());
+      const nextStreak = getNextStreak();
+      const reward = DAILY_REWARDS[nextStreak - 1];
 
+      daily.streak = nextStreak;
+      daily.lastClaimDate = localDateKey();
+      game.score += reward;
+
+      saveDaily();
       saveGame();
       render();
       playRewardSound();
       tg?.HapticFeedback?.notificationOccurred("success");
-      showMessage("Бонус получен: +10 монет!");
+      showMessage(`Подарок получен: +${reward} монет!`);
     });
 
-    document.getElementById("taskNav").addEventListener("click", () => {
-      if (game.taskClaimed) {
-        showMessage("Награда за задание уже получена.");
-        return;
-      }
-
-      if (game.taps < TASK_GOAL) {
-        showMessage(
-          `Сделай ещё ${TASK_GOAL - game.taps} нажатий, чтобы выполнить задание.`
-        );
-        return;
-      }
-
-      game.score += TASK_REWARD;
-      game.taskClaimed = true;
-
-      saveGame();
-      render();
-      playRewardSound();
-      tg?.HapticFeedback?.notificationOccurred("success");
-      showMessage(`Задание выполнено! Начислено ${TASK_REWARD} монет.`);
-    });
-
-    document.getElementById("profileNav").addEventListener("click", () => {
-      showMessage(
-        `Твои монеты: ${game.score}\nВсего нажатий: ${game.taps}`
-      );
-    });
-
-    soundToggle.addEventListener("click", () => {
-      soundEnabled = !soundEnabled;
-      localStorage.setItem(SOUND_KEY, String(soundEnabled));
-      soundToggle.textContent = soundEnabled ? "🔊" : "🔇";
-      soundToggle.setAttribute(
-        "aria-label",
-        soundEnabled ? "Выключить звук" : "Включить звук"
-      );
-
-      if (soundEnabled) playTone(740, 0.12);
-    });
-
+    // Переключение отдельных страниц
     document.querySelectorAll(".bottom-nav button").forEach((button) => {
       button.addEventListener("click", () => {
-        document.querySelectorAll(".bottom-nav button")
-          .forEach((item) => item.classList.remove("active"));
-        button.classList.add("active");
+        const pageName = button.dataset.page;
+
+        document.querySelectorAll(".bottom-nav button").forEach((item) => {
+          item.classList.toggle("active", item === button);
+        });
+
+        document.querySelectorAll(".page").forEach((page) => {
+          page.classList.toggle("active", page.id === `page-${pageName}`);
+        });
+
+        if (pageName === "profile") renderGame();
+        if (pageName === "bonus") renderDaily();
       });
     });
 
-    soundToggle.textContent = soundEnabled ? "🔊" : "🔇";
+    // Меню звука
+    document.getElementById("openSettings").addEventListener("click", () => {
+      settingsBackdrop.classList.add("open");
+    });
+
+    document.getElementById("closeSettings").addEventListener("click", () => {
+      settingsBackdrop.classList.remove("open");
+    });
+
+    settingsBackdrop.addEventListener("click", (event) => {
+      if (event.target === settingsBackdrop) {
+        settingsBackdrop.classList.remove("open");
+      }
+    });
+
+    musicToggle.checked = musicEnabled;
+    tapSoundToggle.checked = tapSoundEnabled;
+
+    musicToggle.addEventListener("change", () => {
+      musicEnabled = musicToggle.checked;
+      localStorage.setItem(MUSIC_SETTING_KEY, String(musicEnabled));
+
+      if (musicEnabled) {
+        startMusic();
+      } else {
+        stopMusic();
+      }
+    });
+
+    tapSoundToggle.addEventListener("change", () => {
+      tapSoundEnabled = tapSoundToggle.checked;
+      localStorage.setItem(TAP_SETTING_KEY, String(tapSoundEnabled));
+
+      if (tapSoundEnabled) playTapSound();
+    });
+
     render();
 
     setInterval(() => {
       if (game.energy < MAX_ENERGY) {
         game.energy = Math.min(
           MAX_ENERGY,
-          game.energy + REGEN_PER_SECOND
+          game.energy + ENERGY_REGEN_PER_SECOND
         );
         saveGame();
-        render();
+        renderGame();
       }
     }, 1000);
   </script>
