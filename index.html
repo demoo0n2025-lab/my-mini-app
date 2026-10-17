@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="theme-color" content="#101426">
-  <title>Тапалка</title>
+  <title>Моя тапалка</title>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
@@ -16,7 +16,7 @@
     body {
       margin: 0;
       min-height: 100vh;
-      padding: 24px 18px;
+      padding: 24px 18px 110px;
       color: #fff;
       font-family: Arial, sans-serif;
       text-align: center;
@@ -25,28 +25,55 @@
         #101426;
     }
 
+    button {
+      font: inherit;
+    }
+
     .app {
       width: min(100%, 420px);
       margin: 0 auto;
-      padding-top: 24px;
+      padding-top: 16px;
+    }
+
+    .top-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
     }
 
     h1 {
-      margin: 0 0 8px;
+      margin: 0;
       font-size: 30px;
     }
 
+    .sound-button {
+      position: absolute;
+      right: 0;
+      width: 42px;
+      height: 42px;
+      border: 1px solid #ffffff25;
+      border-radius: 14px;
+      color: #fff;
+      background: #ffffff12;
+      cursor: pointer;
+    }
+
     .subtitle {
-      margin: 0 0 32px;
+      margin: 8px 0 26px;
       color: #b8c0e0;
     }
 
     .score-card,
-    .energy-card {
-      padding: 18px;
+    .energy-card,
+    .task-card {
       border: 1px solid #ffffff1c;
       border-radius: 20px;
       background: #ffffff0d;
+    }
+
+    .score-card {
+      padding: 18px;
     }
 
     .score-label,
@@ -56,9 +83,11 @@
     }
 
     #score {
+      display: inline-block;
       margin-top: 6px;
       font-size: 42px;
       font-weight: 700;
+      font-variant-numeric: tabular-nums;
     }
 
     .coin-button {
@@ -91,6 +120,7 @@
     }
 
     .energy-card {
+      padding: 16px;
       text-align: left;
     }
 
@@ -115,28 +145,118 @@
       transition: width 0.2s;
     }
 
+    .task-card {
+      margin-top: 12px;
+      padding: 13px 16px;
+      color: #cbd2f0;
+      font-size: 14px;
+    }
+
     #hint {
       min-height: 20px;
-      margin-top: 18px;
+      margin-top: 16px;
       color: #b8c0e0;
       font-size: 14px;
     }
 
-    .reset {
-      margin-top: 24px;
-      padding: 10px 14px;
-      border: 1px solid #ffffff30;
-      border-radius: 10px;
-      color: #c8cdea;
+    .bottom-nav {
+      position: fixed;
+      z-index: 10;
+      bottom: max(12px, env(safe-area-inset-bottom));
+      left: 50%;
+      display: grid;
+      width: min(calc(100% - 24px), 420px);
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      padding: 10px;
+      transform: translateX(-50%);
+      border: 1px solid #ffffff25;
+      border-radius: 18px;
+      background: #1a2038ee;
+      backdrop-filter: blur(12px);
+    }
+
+    .bottom-nav button {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 2px;
+      border: 0;
+      border-radius: 12px;
+      color: #fff;
       background: transparent;
+      font-size: 20px;
       cursor: pointer;
+      transition: background 0.15s, transform 0.15s;
+    }
+
+    .bottom-nav button span {
+      font-size: 11px;
+    }
+
+    .bottom-nav button:active,
+    .bottom-nav button.active {
+      background: #ffffff20;
+      transform: scale(0.96);
+    }
+
+    .flying-coin {
+      position: fixed;
+      z-index: 50;
+      pointer-events: none;
+      font-size: 32px;
+      will-change: transform, opacity;
+      transition:
+        transform 650ms cubic-bezier(.2, .8, .25, 1),
+        opacity 650ms ease;
+    }
+
+    .tap-number {
+      position: fixed;
+      z-index: 49;
+      pointer-events: none;
+      color: #ffe77a;
+      font-size: 24px;
+      font-weight: 700;
+      text-shadow: 0 2px 8px #0008;
+      animation: float-up 700ms ease-out forwards;
+    }
+
+    @keyframes float-up {
+      from {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(0.8);
+      }
+      to {
+        opacity: 0;
+        transform: translate(-50%, -75px) scale(1.2);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+      }
+
+      .flying-coin {
+        transition-duration: 150ms;
+      }
     }
   </style>
 </head>
 
 <body>
   <main class="app">
-    <h1>Моя тапалка</h1>
+    <div class="top-row">
+      <h1>Моя тапалка</h1>
+      <button class="sound-button" id="soundToggle" aria-label="Выключить звук">
+        🔊
+      </button>
+    </div>
+
     <p class="subtitle">Нажимай на монету и собирай очки</p>
 
     <section class="score-card">
@@ -144,7 +264,7 @@
       <div id="score">0</div>
     </section>
 
-    <button class="coin-button" id="tapButton" aria-label="Нажать">
+    <button class="coin-button" id="tapButton" aria-label="Нажать на монету">
       🪙
     </button>
 
@@ -158,10 +278,27 @@
       </div>
     </section>
 
-    <div id="hint">Каждое нажатие даёт 1 монету</div>
+    <section class="task-card" id="taskStatus">
+      Задание: 0 / 20 нажатий
+    </section>
 
-    <button class="reset" id="resetButton">Сбросить прогресс</button>
+    <div id="hint">Каждое нажатие даёт 1 монету</div>
   </main>
+
+  <nav class="bottom-nav" aria-label="Меню приложения">
+    <button class="active" id="playNav">
+      🎮<span>Играть</span>
+    </button>
+    <button id="bonusNav">
+      🎁<span>Бонус</span>
+    </button>
+    <button id="taskNav">
+      ✅<span>Задание</span>
+    </button>
+    <button id="profileNav">
+      👤<span>Профиль</span>
+    </button>
+  </nav>
 
   <script>
     const tg = window.Telegram?.WebApp;
@@ -170,44 +307,66 @@
 
     const MAX_ENERGY = 100;
     const REGEN_PER_SECOND = 1;
-    const STORAGE_KEY = "myTelegramTapper";
+    const TASK_GOAL = 20;
+    const TASK_REWARD = 25;
+    const STORAGE_KEY = "myTelegramTapperV2";
+    const BONUS_KEY = "tapDailyBonusDate";
+    const SOUND_KEY = "tapSoundEnabled";
 
     const scoreElement = document.getElementById("score");
     const energyText = document.getElementById("energyText");
     const energyBar = document.getElementById("energyBar");
     const tapButton = document.getElementById("tapButton");
     const hint = document.getElementById("hint");
+    const taskStatus = document.getElementById("taskStatus");
+    const soundToggle = document.getElementById("soundToggle");
 
     function loadGame() {
       try {
         const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
 
         if (saved) {
-          const now = Date.now();
-          const secondsPassed = Math.max(0, (now - saved.lastTime) / 1000);
-          const recoveredEnergy = Math.floor(secondsPassed * REGEN_PER_SECOND);
+          const secondsPassed = Math.max(
+            0,
+            (Date.now() - Number(saved.lastTime || Date.now())) / 1000
+          );
+
+          const recoveredEnergy = Math.floor(
+            secondsPassed * REGEN_PER_SECOND
+          );
 
           return {
             score: Math.max(0, Number(saved.score) || 0),
             energy: Math.min(
               MAX_ENERGY,
               Math.max(0, (Number(saved.energy) || 0) + recoveredEnergy)
-            )
+            ),
+            taps: Math.max(0, Number(saved.taps) || 0),
+            taskClaimed: Boolean(saved.taskClaimed)
           };
         }
       } catch (error) {
         console.log("Не удалось загрузить сохранение");
       }
 
-      return { score: 0, energy: MAX_ENERGY };
+      return {
+        score: 0,
+        energy: MAX_ENERGY,
+        taps: 0,
+        taskClaimed: false
+      };
     }
 
     const game = loadGame();
+    let soundEnabled = localStorage.getItem(SOUND_KEY) !== "false";
+    let audioContext = null;
 
     function saveGame() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         score: game.score,
         energy: game.energy,
+        taps: game.taps,
+        taskClaimed: game.taskClaimed,
         lastTime: Date.now()
       }));
     }
@@ -218,11 +377,119 @@
       energyBar.style.width = `${(game.energy / MAX_ENERGY) * 100}%`;
       tapButton.disabled = game.energy < 1;
 
-      if (game.energy < 1) {
-        hint.textContent = "Энергия закончилась — она постепенно восстановится";
+      if (game.taskClaimed) {
+        taskStatus.textContent = "Задание выполнено: награда получена 🎉";
       } else {
-        hint.textContent = "Каждое нажатие даёт 1 монету";
+        taskStatus.textContent =
+          `Задание: ${Math.min(game.taps, TASK_GOAL)} / ${TASK_GOAL} нажатий`;
       }
+
+      hint.textContent = game.energy < 1
+        ? "Энергия закончилась — она постепенно восстановится"
+        : "Каждое нажатие даёт 1 монету";
+    }
+
+    function getTodayKey() {
+      const date = new Date();
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function showMessage(message) {
+      if (tg?.showAlert) {
+        tg.showAlert(message);
+      } else {
+        alert(message);
+      }
+    }
+
+    function playTone(frequency, duration = 0.12, type = "sine", volume = 0.06) {
+      if (!soundEnabled) return;
+
+      try {
+        const AudioContextClass =
+          window.AudioContext || window.webkitAudioContext;
+
+        if (!AudioContextClass) return;
+
+        audioContext ??= new AudioContextClass();
+
+        if (audioContext.state === "suspended") {
+          audioContext.resume();
+        }
+
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+
+        oscillator.type = type;
+        oscillator.frequency.setValueAtTime(
+          frequency,
+          audioContext.currentTime
+        );
+
+        gain.gain.setValueAtTime(volume, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(
+          0.001,
+          audioContext.currentTime + duration
+        );
+
+        oscillator.connect(gain);
+        gain.connect(audioContext.destination);
+
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + duration);
+      } catch (error) {
+        // Если звук недоступен в браузере, игра продолжит работать без него.
+      }
+    }
+
+    function playTapSound() {
+      playTone(620, 0.09, "triangle", 0.045);
+    }
+
+    function playRewardSound() {
+      playTone(660, 0.12, "sine", 0.05);
+      setTimeout(() => playTone(880, 0.18, "sine", 0.05), 100);
+    }
+
+    function animateCoinToBalance() {
+      const start = tapButton.getBoundingClientRect();
+      const end = scoreElement.getBoundingClientRect();
+
+      const startX = start.left + start.width / 2;
+      const startY = start.top + start.height / 2;
+      const endX = end.left + end.width / 2;
+      const endY = end.top + end.height / 2;
+
+      const coin = document.createElement("span");
+      coin.className = "flying-coin";
+      coin.textContent = "🪙";
+      coin.style.left = `${startX}px`;
+      coin.style.top = `${startY}px`;
+      coin.style.transform = "translate(-50%, -50%) scale(1)";
+      document.body.appendChild(coin);
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          coin.style.transform =
+            `translate(calc(-50% + ${endX - startX}px), ` +
+            `calc(-50% + ${endY - startY}px)) scale(.25)`;
+          coin.style.opacity = "0";
+        });
+      });
+
+      setTimeout(() => coin.remove(), 750);
+
+      const number = document.createElement("span");
+      number.className = "tap-number";
+      number.textContent = "+1";
+      number.style.left = `${startX}px`;
+      number.style.top = `${startY}px`;
+      document.body.appendChild(number);
+
+      setTimeout(() => number.remove(), 750);
     }
 
     tapButton.addEventListener("click", () => {
@@ -230,23 +497,87 @@
 
       game.score += 1;
       game.energy -= 1;
+      game.taps += 1;
 
+      animateCoinToBalance();
+      playTapSound();
       tg?.HapticFeedback?.impactOccurred("light");
 
       saveGame();
       render();
     });
 
-    document.getElementById("resetButton").addEventListener("click", () => {
-      const confirmed = confirm("Точно сбросить весь прогресс?");
+    document.getElementById("playNav").addEventListener("click", () => {
+      tapButton.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
 
-      if (!confirmed) return;
+    document.getElementById("bonusNav").addEventListener("click", () => {
+      if (localStorage.getItem(BONUS_KEY) === getTodayKey()) {
+        showMessage("Сегодняшний бонус уже получен. Загляни завтра!");
+        return;
+      }
 
-      game.score = 0;
-      game.energy = MAX_ENERGY;
+      game.score += 10;
+      localStorage.setItem(BONUS_KEY, getTodayKey());
+
       saveGame();
       render();
+      playRewardSound();
+      tg?.HapticFeedback?.notificationOccurred("success");
+      showMessage("Бонус получен: +10 монет!");
     });
+
+    document.getElementById("taskNav").addEventListener("click", () => {
+      if (game.taskClaimed) {
+        showMessage("Награда за задание уже получена.");
+        return;
+      }
+
+      if (game.taps < TASK_GOAL) {
+        showMessage(
+          `Сделай ещё ${TASK_GOAL - game.taps} нажатий, чтобы выполнить задание.`
+        );
+        return;
+      }
+
+      game.score += TASK_REWARD;
+      game.taskClaimed = true;
+
+      saveGame();
+      render();
+      playRewardSound();
+      tg?.HapticFeedback?.notificationOccurred("success");
+      showMessage(`Задание выполнено! Начислено ${TASK_REWARD} монет.`);
+    });
+
+    document.getElementById("profileNav").addEventListener("click", () => {
+      showMessage(
+        `Твои монеты: ${game.score}\nВсего нажатий: ${game.taps}`
+      );
+    });
+
+    soundToggle.addEventListener("click", () => {
+      soundEnabled = !soundEnabled;
+      localStorage.setItem(SOUND_KEY, String(soundEnabled));
+      soundToggle.textContent = soundEnabled ? "🔊" : "🔇";
+      soundToggle.setAttribute(
+        "aria-label",
+        soundEnabled ? "Выключить звук" : "Включить звук"
+      );
+
+      if (soundEnabled) playTone(740, 0.12);
+    });
+
+    document.querySelectorAll(".bottom-nav button").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll(".bottom-nav button")
+          .forEach((item) => item.classList.remove("active"));
+        button.classList.add("active");
+      });
+    });
+
+    soundToggle.textContent = soundEnabled ? "🔊" : "🔇";
+    render();
 
     setInterval(() => {
       if (game.energy < MAX_ENERGY) {
@@ -258,8 +589,6 @@
         render();
       }
     }, 1000);
-
-    render();
   </script>
 </body>
 </html>
